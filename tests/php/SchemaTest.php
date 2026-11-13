@@ -1,0 +1,132 @@
+<?php
+
+declare(strict_types=1);
+
+use DiviActiveForm\Form\FieldDefinition;
+use DiviActiveForm\Form\FieldType;
+use DiviActiveForm\Form\FormSchema;
+use DiviActiveForm\Form\SchemaSigner;
+use DiviActiveForm\Form\TitleTemplate;
+
+function dafField(string $label, array $advanced): array
+{
+    $settings = [];
+    foreach ($advanced as $key => $value) {
+        $settings[ $key ] = [ 'desktop' => [ 'value' => $value ] ];
+    }
+
+    return [ 'fieldItem' => [ 'innerContent' => [ 'desktop' => [ 'value' => $label ] ], 'advanced' => $settings ] ];
+}
+
+describe('FieldDefinition', function (): void {
+    it('reads a Form Field module\'s attributes', function (): void {
+        $field = FieldDefinition::fromAttrs(dafField('Your group', [
+            'name'       => 'group',
+            'type'       => 'json',
+            'required'   => 'on',
+            'source'     => '/wp-json/divi-active-form/v1/groups',
+            'fullwidth'  => 'off',
+            'emptyLabel' => 'Choose',
+        ]));
+
+        expect($field->name)->toBe('group')
+            ->and($field->label)->toBe('Your group')
+            ->and($field->type)->toBe(FieldType::Json)
+            ->and($field->required)->toBeTrue()
+            ->and($field->fullwidth)->toBeFalse()
+            ->and($field->source)->toBe('/wp-json/divi-active-form/v1/groups')
+            ->and($field->valueKey)->toBe('value')
+            ->and($field->labelKey)->toBe('label')
+            ->and($field->emptyLabel)->toBe('Choose');
+    });
+
+    it('derives the field name from the label when none is set', function (): void {
+        expect(FieldDefinition::fromAttrs(dafField('Email Address!', []))->name)->toBe('email_address');
+    });
+
+    it('never yields a protected (underscore) meta key', function (): void {
+        expect(FieldDefinition::sanitizeName('_edit_lock'))->toBe('edit_lock')
+            ->and(FieldDefinition::sanitizeName('__-x'))->toBe('x');
+    });
+
+    it('treats an unknown type as text', function (): void {
+        expect(FieldDefinition::fromAttrs(dafField('A', [ 'type' => 'file' ]))->type)->toBe(FieldType::Text);
+    });
+
+    it('survives a round trip through an array', function (): void {
+        $field = new FieldDefinition('second_group', 'Second', FieldType::Json, false, 'p', false, '', '/src', 'items', 'id', 'name', 'None');
+
+        expect(FieldDefinition::fromArray($field->toArray()))->toEqual($field);
+    });
+});
+
+describe('FormSchema', function (): void {
+    it('defaults to a pending post, with the Divi Form Builder hook off', function (): void {
+        $schema = FormSchema::fromAttrs([], []);
+
+        expect($schema->postStatus)->toBe('pending')
+            ->and($schema->fireLegacyHook)->toBeFalse()
+            ->and(FormSchema::fromArray([])->fireLegacyHook)->toBeFalse();
+    });
+
+    it('reads the form settings and drops unnamed and repeated fields', function (): void {
+        $attrs = [ 'form' => [ 'advanced' => [
+            'formId'     => [ 'desktop' => [ 'value' => 'signup' ] ],
+            'postType'   => [ 'desktop' => [ 'value' => 'signup' ] ],
+            'postStatus' => [ 'desktop' => [ 'value' => 'bogus' ] ],
+            'legacyHook' => [ 'desktop' => [ 'value' => 'on' ] ],
+        ] ] ];
+        $fields = [
+            new FieldDefinition('email', 'Email', FieldType::Email),
+            new FieldDefinition('', 'Nameless', FieldType::Text),
+            new FieldDefinition('email', 'Second email', FieldType::Email),
+        ];
+
+        $schema = FormSchema::fromAttrs($attrs, $fields);
+
+        expect($schema->formId)->toBe('signup')
+            ->and($schema->postType)->toBe('signup')
+            ->and($schema->postStatus)->toBe('pending')
+            ->and($schema->fireLegacyHook)->toBeTrue()
+            ->and($schema->fields)->toHaveCount(1)
+            ->and($schema->fields[0]->label)->toBe('Email');
+    });
+});
+
+describe('SchemaSigner', function (): void {
+    $schema = new FormSchema('signup', 'signup', 'publish', '', true, [
+        new FieldDefinition('group', 'Group', FieldType::Json, true, source: '/wp-json/divi-active-form/v1/groups'),
+    ], 'Thanks', 'https://example.test/done/');
+
+    it('opens what it signed', function () use ($schema): void {
+        $signer = new SchemaSigner('key');
+
+        expect($signer->verify($signer->sign($schema)))->toEqual($schema);
+    });
+
+    it('refuses a token whose schema was changed', function () use ($schema): void {
+        $signer = new SchemaSigner('key');
+        [ , $mac ] = explode('.', $signer->sign($schema));
+        $forged = rtrim(strtr(base64_encode((string) json_encode([ 'postType' => 'page' ] + $schema->toArray())), '+/', '-_'), '=');
+
+        expect($signer->verify($forged . '.' . $mac))->toBeNull();
+    });
+
+    it('refuses a token signed with another key, and junk', function () use ($schema): void {
+        expect(( new SchemaSigner('key') )->verify(( new SchemaSigner('other') )->sign($schema)))->toBeNull()
+            ->and(( new SchemaSigner('key') )->verify('not-a-token'))->toBeNull()
+            ->and(( new SchemaSigner('key') )->verify(''))->toBeNull();
+    });
+});
+
+describe('TitleTemplate', function (): void {
+    it('replaces {field} placeholders and squeezes the gaps left by empty ones', function (): void {
+        expect(TitleTemplate::render('Submission from {group} {second_group} ({EMAIL})', [ 'group' => 'Bath', 'email' => 'a@b.c' ], 'fallback'))
+            ->toBe('Submission from Bath (a@b.c)');
+    });
+
+    it('falls back when the result is empty', function (): void {
+        expect(TitleTemplate::render('{missing}', [], 'fallback'))->toBe('fallback')
+            ->and(TitleTemplate::render('', [], 'fallback'))->toBe('fallback');
+    });
+});
