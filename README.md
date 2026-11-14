@@ -10,7 +10,7 @@
 
 A Divi 5 form builder whose submissions become WordPress posts. It adds two modules:
 
-- **Register Form**: the form. Each submission creates a post of the type and status
+- **Divi Active Form**: the form. Each submission creates a post of the type and status
   you choose. The default is a `post` held as Pending Review.
 - **Form Field**: one field. Add as many as you need. Each has a type: Text, Email,
   Phone, Paragraph, Dropdown, Checkbox or **JSON Dropdown**, whose options come from a
@@ -21,7 +21,7 @@ are saved through `update_field()`.
 
 ## Building a form
 
-1. Add a **Register Form** and set, under **Submission**:
+1. Add a **Divi Active Form** and set, under **Submission**:
 
    | Setting | Default | |
    |---|---|---|
@@ -143,7 +143,7 @@ To supply options from PHP instead, filter `divi_active_form/field_options`.
 
 ## How a submission is handled
 
-The Register Form reads its fields' settings and signs them (form ID, post type, status
+The Divi Active Form reads its fields' settings and signs them (form ID, post type, status
 and each field's name, type and options) into a hidden input with an HMAC keyed on the
 site's salts. On submit:
 

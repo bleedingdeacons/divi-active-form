@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The Register Form Divi 5 module: the form around its Form Field children.
+ * The Divi Active Form Divi 5 module: the form around its Form Field children.
  *
  * At render time it reads its children's settings from Divi's block store, builds the
  * form's schema from them, and signs it into the page; the submission is validated
@@ -37,14 +37,14 @@ use ET\Builder\Packages\Module\Options\Text\TextStyle;
 use ET\Builder\Packages\ModuleLibrary\ModuleRegistration;
 use WP_Block_Type_Registry;
 
-final class RegisterFormModule implements DependencyInterface
+final class FormModule implements DependencyInterface
 {
-    public const NAME = 'divi-active-form/register-form';
+    public const NAME = 'divi-active-form/form';
 
     public function load(): void
     {
         ModuleRegistration::register_module(
-            DIVI_ACTIVE_FORM_DIR . 'modules-json/register-form/',
+            DIVI_ACTIVE_FORM_DIR . 'modules-json/form/',
             [
                 'render_callback' => [ self::class, 'render_callback' ],
             ]

@@ -1,8 +1,8 @@
 {
-  "name": "divi-active-form/register-form",
+  "name": "divi-active-form/form",
   "d4Shortcode": "",
-  "title": "Register Form",
-  "titles": "Register Forms",
+  "title": "Divi Active Form",
+  "titles": "Divi Active Forms",
   "description": "A form whose submissions create posts, with dropdowns that can be filled from JSON.",
   "keywords": [
     "form",

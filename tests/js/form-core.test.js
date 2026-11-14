@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { RegisterForm, initRegisterForms, passes, fieldStates } from '../../assets/src/frontend/form-core';
+import { ActiveForm, initActiveForms, passes, fieldStates } from '../../assets/src/frontend/form-core';
 
 const markup = `
 <form class="daf-form" method="post" action="/wp-admin/admin-post.php" data-daf-form="" data-rest="/wp-json/divi-active-form/v1/submit">
@@ -27,7 +27,7 @@ const submit = async ( form ) => {
 	await new Promise( ( resolve ) => setTimeout( resolve, 0 ) );
 };
 
-describe( 'RegisterForm', () => {
+describe( 'ActiveForm', () => {
 	let form;
 
 	beforeEach( () => {
@@ -37,7 +37,7 @@ describe( 'RegisterForm', () => {
 
 	it( 'posts the form data to the REST endpoint', async () => {
 		const fetch = respond( 201, { ok: true, message: 'Thanks', errors: {}, redirect: '' } );
-		new RegisterForm( form, { fetch } );
+		new ActiveForm( form, { fetch } );
 		form.querySelector( 'select' ).value = '12';
 
 		await submit( form );
@@ -51,7 +51,7 @@ describe( 'RegisterForm', () => {
 	} );
 
 	it( 'shows the success message and hides the fields', async () => {
-		new RegisterForm( form, { fetch: respond( 201, { ok: true, message: 'Thanks', errors: {}, redirect: '' } ) } );
+		new ActiveForm( form, { fetch: respond( 201, { ok: true, message: 'Thanks', errors: {}, redirect: '' } ) } );
 
 		await submit( form );
 
@@ -64,7 +64,7 @@ describe( 'RegisterForm', () => {
 
 	it( 'follows the redirect when the form has one', async () => {
 		const location = { assign: vi.fn() };
-		new RegisterForm( form, { fetch: respond( 201, { ok: true, message: '', errors: {}, redirect: '/thanks/' } ), location } );
+		new ActiveForm( form, { fetch: respond( 201, { ok: true, message: '', errors: {}, redirect: '/thanks/' } ), location } );
 
 		await submit( form );
 
@@ -72,7 +72,7 @@ describe( 'RegisterForm', () => {
 	} );
 
 	it( 'marks each invalid field and clears the mark when it is edited', async () => {
-		new RegisterForm( form, {
+		new ActiveForm( form, {
 			fetch: respond( 422, { ok: false, message: 'Please correct the highlighted fields.', errors: { email: 'Email is required.' } } ),
 		} );
 
@@ -96,7 +96,7 @@ describe( 'RegisterForm', () => {
 
 	it( 'falls back to a normal post when the endpoint cannot be reached', async () => {
 		const nativeSubmit = vi.spyOn( form, 'submit' ).mockImplementation( () => {} );
-		new RegisterForm( form, { fetch: vi.fn().mockRejectedValue( new TypeError( 'Failed to fetch' ) ) } );
+		new ActiveForm( form, { fetch: vi.fn().mockRejectedValue( new TypeError( 'Failed to fetch' ) ) } );
 
 		await submit( form );
 
@@ -106,17 +106,17 @@ describe( 'RegisterForm', () => {
 
 	it( 'says when a JSON dropdown has no options', () => {
 		form.querySelector( 'select' ).setAttribute( 'data-daf-empty', 'No options are available right now.' );
-		new RegisterForm( form, { fetch: vi.fn() } );
+		new ActiveForm( form, { fetch: vi.fn() } );
 
 		const error = form.querySelector( '[data-daf-field="category"] .daf-field__error' );
 		expect( error.hidden ).toBe( false );
 		expect( error.textContent ).toBe( 'No options are available right now.' );
 	} );
 
-	it( 'enhances every Register Form on the page', () => {
+	it( 'enhances every Divi Active Form on the page', () => {
 		document.body.innerHTML = markup + markup;
 
-		expect( initRegisterForms( document, { fetch: vi.fn() } ) ).toHaveLength( 2 );
+		expect( initActiveForms( document, { fetch: vi.fn() } ) ).toHaveLength( 2 );
 	} );
 } );
 
@@ -146,7 +146,7 @@ describe( 'Conditional Logic', () => {
 	it( 'hides and disables a field until its rules hold, then shows it', () => {
 		document.body.innerHTML = conditional;
 		const form = document.querySelector( 'form' );
-		new RegisterForm( form, { fetch: vi.fn() } );
+		new ActiveForm( form, { fetch: vi.fn() } );
 		const reason = form.querySelector( '[name="reason"]' );
 
 		expect( module( form, 'reason' ).hidden ).toBe( true );
@@ -163,7 +163,7 @@ describe( 'Conditional Logic', () => {
 	it( 'greys out a field until it is enabled, and leaves it out of the submission', () => {
 		document.body.innerHTML = conditional;
 		const form = document.querySelector( 'form' );
-		new RegisterForm( form, { fetch: vi.fn() } );
+		new ActiveForm( form, { fetch: vi.fn() } );
 		const note = form.querySelector( '[name="note"]' );
 		const wrap = form.querySelector( '[data-daf-field="note"]' );
 

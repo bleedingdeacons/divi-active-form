@@ -1,5 +1,5 @@
 /**
- * The Register Form's Post Type setting: an editable dropdown (combobox).
+ * The Divi Active Form's Post Type setting: an editable dropdown (combobox).
  *
  * Registered with Divi's field library as `divi-active-form/post-type`. Type a post
  * type's name, or open the list (▾, or the down arrow key) to choose from every post

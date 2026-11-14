@@ -1,5 +1,5 @@
 /**
- * Register Form behaviour: sends the form to the REST endpoint and shows the outcome
+ * Divi Active Form behaviour: sends the form to the REST endpoint and shows the outcome
  * in place. Without this script the form still works, posting to admin-post.php.
  *
  * Kept free of globals other than those passed in, so it can be tested under jsdom.
@@ -85,7 +85,7 @@ const readJson = ( el, attr ) => {
 	}
 };
 
-export class RegisterForm {
+export class ActiveForm {
 	/**
 	 * @param {HTMLFormElement} form
 	 * @param {{ fetch?: typeof fetch, location?: { assign(url: string): void } }} [env]
@@ -284,6 +284,6 @@ function cssEscape( value ) {
 	return typeof CSS !== 'undefined' && CSS.escape ? CSS.escape( value ) : String( value ).replace( /["\\]/g, '\\$&' );
 }
 
-export function initRegisterForms( root = document, env = {} ) {
-	return Array.from( root.querySelectorAll( 'form[data-daf-form]' ) ).map( ( form ) => new RegisterForm( form, env ) );
+export function initActiveForms( root = document, env = {} ) {
+	return Array.from( root.querySelectorAll( 'form[data-daf-form]' ) ).map( ( form ) => new ActiveForm( form, env ) );
 }

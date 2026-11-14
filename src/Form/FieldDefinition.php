@@ -1,7 +1,7 @@
 <?php
 
 /**
- * One field of a Register Form, as configured on its Form Field module.
+ * One field of a Divi Active Form, as configured on its Form Field module.
  *
  * Built from the child module's Divi attributes when the form renders, then carried
  * (signed) in the form's schema so the submission is validated against exactly what the

@@ -1,5 +1,5 @@
 /**
- * Builder definition of the Register Form module. Its Form Field children are rendered by
+ * Builder definition of the Divi Active Form module. Its Form Field children are rendered by
  * Divi through ChildModulesContainer; this file draws the form around them.
  */
 import React from 'react';
@@ -12,7 +12,7 @@ import {
 	elementClassnames,
 	textOptionsClassnames,
 } from '@divi/module';
-import metadata from '../../../modules-json/register-form/module.json';
+import metadata from '../../../modules-json/form/module.json';
 
 const setting = ( attrs, key ) => attrs?.form?.advanced?.[ key ]?.desktop?.value ?? '';
 
@@ -37,7 +37,7 @@ const ModuleStyles = ( { attrs, elements, settings, orderClass, mode, state, noS
 	</StyleContainer>
 );
 
-const RegisterFormEdit = ( { attrs, elements, id, name, childrenIds } ) => {
+const FormEdit = ( { attrs, elements, id, name, childrenIds } ) => {
 	const title = setting( attrs, 'title' );
 	const submitLabel = setting( attrs, 'submitLabel' ) || 'Submit';
 	const hasFields = Array.isArray( childrenIds ) && childrenIds.length > 0;
@@ -72,9 +72,9 @@ const RegisterFormEdit = ( { attrs, elements, id, name, childrenIds } ) => {
 	);
 };
 
-export const registerFormModule = {
+export const formModule = {
 	metadata,
 	renderers: {
-		edit: RegisterFormEdit,
+		edit: FormEdit,
 	},
 };

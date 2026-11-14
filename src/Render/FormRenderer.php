@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Front-end markup for the Register Form around its fields.
+ * Front-end markup for the Divi Active Form around its fields.
  *
  * The form posts to admin-post.php, so it works without JavaScript; assets/build/form.js
  * takes over when it loads, sending the same fields to the REST endpoint and showing

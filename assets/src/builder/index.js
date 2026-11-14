@@ -1,12 +1,12 @@
 /**
- * Visual Builder entry point: registers the Register Form and its Form Field child with
+ * Visual Builder entry point: registers the Divi Active Form and its Form Field child with
  * Divi 5's module library, and its two custom settings fields (the Conditional Logic
  * rule editor and the Post Type dropdown) with the field library.
  */
 import { addAction } from '@wordpress/hooks';
 import { registerModule } from '@divi/module-library';
 import { registerFieldComponent } from '@divi/field-library';
-import { registerFormModule } from './register-form';
+import { formModule } from './form';
 import { formFieldModule } from './form-field';
 import { FIELD_NAME as RULES_FIELD, RuleEditor } from './rule-editor';
 import { FIELD_NAME as POST_TYPE_FIELD, PostTypeField } from './post-type-field';
@@ -19,7 +19,7 @@ registerFieldComponent( { name: RULES_FIELD, component: RuleEditor } );
 registerFieldComponent( { name: POST_TYPE_FIELD, component: PostTypeField } );
 
 addAction( 'divi.moduleLibrary.registerModuleLibraryStore.after', 'diviActiveForm', () => {
-	for ( const definition of [ registerFormModule, formFieldModule ] ) {
+	for ( const definition of [ formModule, formFieldModule ] ) {
 		const { metadata, ...rest } = definition;
 		registerModule( metadata, rest );
 	}

@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name:       Divi Active Form
- * Description:       Divi 5 form builder: a Register Form module whose Form Field children include dropdowns filled from a JSON source. Each submission creates a post and fires an after-insert hook.
+ * Description:       Divi 5 form builder: a Form module whose Form Field children include dropdowns filled from a JSON source. Each submission creates a post and fires an after-insert hook.
  * Version:           1.0.0
  * Requires at least: 6.5
  * Requires PHP:      8.1

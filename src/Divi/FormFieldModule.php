@@ -1,10 +1,10 @@
 <?php
 
 /**
- * The Form Field Divi 5 module: one input of a Register Form.
+ * The Form Field Divi 5 module: one input of a Divi Active Form.
  *
  * Its settings are read twice: here, to render the input (with a dropdown's options
- * fetched from its JSON source), and by RegisterFormModule, to build the schema that
+ * fetched from its JSON source), and by FormModule, to build the schema that
  * the submission is checked against.
  *
  * Only loaded from the `divi_module_library_modules_dependency_tree` action.

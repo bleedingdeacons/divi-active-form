@@ -40,7 +40,7 @@ final class FormSchema
     }
 
     /**
-     * From the Register Form module's attributes plus its children's field definitions.
+     * From the Divi Active Form module's attributes plus its children's field definitions.
      *
      * @param array<string, mixed>  $attrs
      * @param list<FieldDefinition> $fields

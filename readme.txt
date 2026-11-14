@@ -3,14 +3,14 @@ Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
 Stable tag: 1.0.0
-Build date: 2026/11/14 20:32:46
+Build date: 2026/11/14 22:08:24
 License: GPLv2 or later
 
 Divi 5 form builder: submissions create posts, with dropdowns filled from JSON.
 
 == Description ==
 
-Adds a "Register Form" module and its "Form Field" children to the Divi 5 Visual Builder.
+Adds a "Divi Active Form" module and its "Form Field" children to the Divi 5 Visual Builder.
 Each submission creates a post of the type and status the form sets, saves each field to
 post meta or ACF, and fires an after-insert action.
 

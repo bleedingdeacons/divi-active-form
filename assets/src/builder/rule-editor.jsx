@@ -6,7 +6,7 @@
  * the server parses (one rule per line), so a form saved with it and a form typed by
  * hand are the same thing. "Edit as text" switches to a plain textarea.
  *
- * The fields a rule can test are the other Form Fields in the same Register Form, read
+ * The fields a rule can test are the other Form Fields in the same Divi Active Form, read
  * from Divi's edit-post store: the field whose settings are open is
  * useCurrentModuleId(), its parent holds the siblings.
  */

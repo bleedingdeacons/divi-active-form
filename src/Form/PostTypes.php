@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The post types a Register Form can save submissions as, for the builder's Post Type
+ * The post types a Divi Active Form can save submissions as, for the builder's Post Type
  * dropdown.
  *
  * Every post type with an admin screen (`show_ui`), so custom post types are listed

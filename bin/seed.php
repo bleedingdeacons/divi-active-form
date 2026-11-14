@@ -1,6 +1,6 @@
 <?php
 /**
- * Seeds the dev site with sample post categories and a Register Form demo page.
+ * Seeds the dev site with sample post categories and a Divi Active Form demo page.
  *
  * Run through WP-CLI (bin/dev.ps1 seed does this):
  *   wp eval-file bin/seed.php            create sample data (idempotent: replaces earlier samples)
@@ -221,9 +221,9 @@ $daf_content = str_replace(
 	. '<!-- wp:divi/section {"builderVersion":"__V__"} -->'
 	. '<!-- wp:divi/row {"module":{"advanced":{"columnStructure":{"desktop":{"value":"4_4"}},"flexColumnStructure":{"desktop":{"value":"equal-columns_1"}}},"decoration":{"layout":{"desktop":{"value":{"flexWrap":"nowrap"}}}}},"builderVersion":"__V__"} -->'
 	. '<!-- wp:divi/column {"module":{"advanced":{"type":{"desktop":{"value":"4_4"}}},"decoration":{"sizing":{"desktop":{"value":{"flexType":"24_24"}}}}},"builderVersion":"__V__"} -->'
-	. '<!-- wp:divi-active-form/register-form ' . wp_json_encode( $daf_form_attrs ) . ' -->'
+	. '<!-- wp:divi-active-form/form ' . wp_json_encode( $daf_form_attrs ) . ' -->'
 	. $daf_fields
-	. '<!-- /wp:divi-active-form/register-form -->'
+	. '<!-- /wp:divi-active-form/form -->'
 	. '<!-- /wp:divi/column -->'
 	. '<!-- /wp:divi/row -->'
 	. '<!-- /wp:divi/section -->'
@@ -234,7 +234,7 @@ $daf_page = wp_insert_post(
 	[
 		'post_type'    => 'page',
 		'post_status'  => 'publish',
-		'post_title'   => 'Register Form Demo',
+		'post_title'   => 'Divi Active Form Demo',
 		'post_name'    => 'divi-active-form-demo',
 		'post_content' => wp_slash( $daf_content ),
 		'meta_input'   => [

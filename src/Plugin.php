@@ -60,7 +60,7 @@ final class Plugin
         if (! $dependencyTree instanceof \ET\Builder\Framework\DependencyManagement\DependencyTree) {
             return;
         }
-        $dependencyTree->add_dependency(new Divi\RegisterFormModule());
+        $dependencyTree->add_dependency(new Divi\FormModule());
         $dependencyTree->add_dependency(new Divi\FormFieldModule());
     }
 

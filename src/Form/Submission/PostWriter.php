@@ -67,7 +67,7 @@ final class PostWriter
         }
 
         /**
-         * Fires after a Register Form submission has been saved as a post.
+         * Fires after a Divi Active Form submission has been saved as a post.
          *
          * @param string                $formId The form's Form ID setting.
          * @param int                   $postId The created post.

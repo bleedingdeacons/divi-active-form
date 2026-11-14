@@ -1,11 +1,11 @@
 /**
- * Front-end entry: enhances every Register Form on the page.
+ * Front-end entry: enhances every Divi Active Form on the page.
  */
 import './form.css';
-import { initRegisterForms } from './form-core';
+import { initActiveForms } from './form-core';
 
 if ( document.readyState === 'loading' ) {
-	document.addEventListener( 'DOMContentLoaded', () => initRegisterForms() );
+	document.addEventListener( 'DOMContentLoaded', () => initActiveForms() );
 } else {
-	initRegisterForms();
+	initActiveForms();
 }

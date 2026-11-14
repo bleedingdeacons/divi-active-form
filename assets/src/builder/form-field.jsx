@@ -1,5 +1,5 @@
 /**
- * Builder definition of the Form Field module (a Register Form child). Settings panels
+ * Builder definition of the Form Field module (a Divi Active Form child). Settings panels
  * come from module.json (Conditional Logic uses this plugin's own rule editor, in
  * rule-editor.jsx); this file renders the field as the front end will.
  */

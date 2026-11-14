@@ -3,7 +3,7 @@
 /**
  * REST routes, under divi-active-form/v1:
  *
- *   POST /submit    a Register Form submission (public; what form.js sends)
+ *   POST /submit    a Divi Active Form submission (public; what form.js sends)
  *   GET  /example-options
  *                   a sample JSON source for dropdowns (public; ?shape=nested for the
  *                   nested form). See ExampleOptions.

@@ -11,7 +11,7 @@
       link      junction <site>\wp-content\plugins\divi-active-form -> this checkout
       unlink    remove that junction (rmdir, never a recursive delete through it)
       activate  wp plugin activate divi-active-form
-      seed      sample categories and a Register Form demo page
+      seed      sample categories and a Divi Active Form demo page
       reset     remove the sample data only
       wp        run any WP-CLI command, e.g.  .\bin\dev.ps1 wp post list --post_type=page
       composer  run Local's bundled Composer in this checkout, e.g.  .\bin\dev.ps1 composer install
