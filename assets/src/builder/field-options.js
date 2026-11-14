@@ -3,6 +3,10 @@
  * FieldDefinition::fromAttrs() and StaticOptions::parse() on the PHP side, so the builder
  * preview shows what the front end will render.
  */
+import metadata from '../../../modules-json/form-field/module.json';
+
+// What Divi merges in on the server for any setting the editor has not changed.
+const DEFAULTS = { fieldItem: metadata.attributes.fieldItem.default };
 
 const desktop = ( attrs, path ) => {
 	let value = attrs;
@@ -31,8 +35,9 @@ export function sanitizeName( raw ) {
 }
 
 export function fieldFromAttrs( attrs ) {
-	const setting = ( key ) => text( desktop( attrs, `fieldItem.advanced.${ key }` ) );
-	const label = stripTags( text( desktop( attrs, 'fieldItem.innerContent' ) ) ).trim();
+	const read = ( path ) => desktop( attrs, path ) ?? desktop( DEFAULTS, path );
+	const setting = ( key ) => text( read( `fieldItem.advanced.${ key }` ) );
+	const label = stripTags( text( read( 'fieldItem.innerContent' ) ) ).trim();
 	const type = TYPES.includes( setting( 'type' ) ) ? setting( 'type' ) : 'text';
 
 	return {
@@ -42,13 +47,30 @@ export function fieldFromAttrs( attrs ) {
 		required: setting( 'required' ) === 'on',
 		placeholder: setting( 'placeholder' ),
 		fullwidth: setting( 'fullwidth' ) !== 'off',
-		options: typeof desktop( attrs, 'fieldItem.advanced.options' ) === 'string' ? desktop( attrs, 'fieldItem.advanced.options' ) : '',
+		options: typeof read( 'fieldItem.advanced.options' ) === 'string' ? read( 'fieldItem.advanced.options' ) : '',
 		source: setting( 'source' ),
 		itemsPath: setting( 'itemsPath' ),
 		valueKey: setting( 'valueKey' ) || 'value',
 		labelKey: setting( 'labelKey' ) || 'label',
 		emptyLabel: setting( 'emptyLabel' ),
+		visibleRules: rulesText( read( 'fieldItem.advanced.visibleRules' ) ),
+		visibleMatch: setting( 'visibleMatch' ) === 'any' ? 'any' : 'all',
+		enabledRules: rulesText( read( 'fieldItem.advanced.enabledRules' ) ),
+		enabledMatch: setting( 'enabledMatch' ) === 'any' ? 'any' : 'all',
 	};
+}
+
+/** A rules textarea's non-blank lines, trimmed. */
+function rulesText( value ) {
+	return String( typeof value === 'string' ? value : '' )
+		.split( /\r\n|\r|\n/ )
+		.map( ( line ) => line.trim() )
+		.filter( Boolean );
+}
+
+/** One line for the builder preview, e.g. "Shown when size = large and email is not empty". */
+export function conditionSummary( verb, lines, match ) {
+	return lines.length ? `${ verb } when ${ lines.join( match === 'any' ? ' or ' : ' and ' ) }` : '';
 }
 
 /** Same rules as StaticOptions::parse(). */

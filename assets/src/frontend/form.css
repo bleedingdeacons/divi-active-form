@@ -130,3 +130,17 @@
 	font-size: 0.85em;
 	opacity: 0.75;
 }
+
+/* Conditional Logic: form-core.js sets these as values change. */
+.daf-field-module[hidden],
+.daf-field[hidden] {
+	display: none;
+}
+
+.daf-field--disabled {
+	opacity: 0.55;
+}
+
+.daf-field--disabled .daf-field__input {
+	cursor: not-allowed;
+}

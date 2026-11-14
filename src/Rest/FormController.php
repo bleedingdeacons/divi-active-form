@@ -4,8 +4,6 @@
  * REST routes, under divi-active-form/v1:
  *
  *   POST /submit    a Register Form submission (public; what form.js sends)
- *   GET  /groups    published TSML groups as [{value, label}] (public: a ready-made JSON
- *                   source for group dropdowns)
  *   GET  /options   a JSON source's options as the form would show them (editors only;
  *                   the Visual Builder's preview)
  *
@@ -23,7 +21,6 @@ use DiviActiveForm\Form\FieldType;
 use DiviActiveForm\Form\Options\FieldOptions;
 use DiviActiveForm\Form\Submission\SubmissionHandler;
 use DiviActiveForm\Form\Submission\SubmissionResult;
-use DiviActiveForm\Groups\GroupRepository;
 use DiviActiveForm\Render\FormRenderer;
 use DiviActiveForm\Support\Attrs;
 use WP_REST_Request;
@@ -45,16 +42,6 @@ final class FormController
             [
                 'methods'             => 'POST',
                 'callback'            => [ $this, 'submit' ],
-                'permission_callback' => '__return_true',
-            ]
-        );
-
-        register_rest_route(
-            self::NAMESPACE,
-            '/groups',
-            [
-                'methods'             => 'GET',
-                'callback'            => [ $this, 'groups' ],
                 'permission_callback' => '__return_true',
             ]
         );
@@ -84,11 +71,6 @@ final class FormController
         $result = SubmissionHandler::create()->handle(Attrs::map($request->get_params()), self::clientKey());
 
         return new WP_REST_Response($result->toArray(), $result->status);
-    }
-
-    public function groups(): WP_REST_Response
-    {
-        return new WP_REST_Response(( new GroupRepository() )->all(), 200);
     }
 
     public function options(WP_REST_Request $request): WP_REST_Response

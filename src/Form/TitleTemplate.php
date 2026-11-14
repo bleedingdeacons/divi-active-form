@@ -4,8 +4,8 @@
  * The created post's title: the form's Post Title template with `{field_name}`
  * placeholders replaced by the submitted values.
  *
- * Dropdown placeholders show the option's label, not its value, so `{group}` gives the
- * group's name rather than its post ID.
+ * Dropdown placeholders show the option's label, not its value, so `{category}` gives
+ * the category's name rather than its ID.
  *
  * @package DiviActiveForm
  */

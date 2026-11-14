@@ -20,21 +20,21 @@ function dafField(string $label, array $advanced): array
 
 describe('FieldDefinition', function (): void {
     it('reads a Form Field module\'s attributes', function (): void {
-        $field = FieldDefinition::fromAttrs(dafField('Your group', [
-            'name'       => 'group',
+        $field = FieldDefinition::fromAttrs(dafField('Category', [
+            'name'       => 'category',
             'type'       => 'json',
             'required'   => 'on',
-            'source'     => '/wp-json/divi-active-form/v1/groups',
+            'source'     => '/wp-json/wp/v2/categories',
             'fullwidth'  => 'off',
             'emptyLabel' => 'Choose',
         ]));
 
-        expect($field->name)->toBe('group')
-            ->and($field->label)->toBe('Your group')
+        expect($field->name)->toBe('category')
+            ->and($field->label)->toBe('Category')
             ->and($field->type)->toBe(FieldType::Json)
             ->and($field->required)->toBeTrue()
             ->and($field->fullwidth)->toBeFalse()
-            ->and($field->source)->toBe('/wp-json/divi-active-form/v1/groups')
+            ->and($field->source)->toBe('/wp-json/wp/v2/categories')
             ->and($field->valueKey)->toBe('value')
             ->and($field->labelKey)->toBe('label')
             ->and($field->emptyLabel)->toBe('Choose');
@@ -54,7 +54,7 @@ describe('FieldDefinition', function (): void {
     });
 
     it('survives a round trip through an array', function (): void {
-        $field = new FieldDefinition('second_group', 'Second', FieldType::Json, false, 'p', false, '', '/src', 'items', 'id', 'name', 'None');
+        $field = new FieldDefinition('second_category', 'Second', FieldType::Json, false, 'p', false, '', '/src', 'items', 'id', 'name', 'None');
 
         expect(FieldDefinition::fromArray($field->toArray()))->toEqual($field);
     });
@@ -95,7 +95,7 @@ describe('FormSchema', function (): void {
 
 describe('SchemaSigner', function (): void {
     $schema = new FormSchema('signup', 'signup', 'publish', '', true, [
-        new FieldDefinition('group', 'Group', FieldType::Json, true, source: '/wp-json/divi-active-form/v1/groups'),
+        new FieldDefinition('category', 'Category', FieldType::Json, true, source: '/wp-json/wp/v2/categories'),
     ], 'Thanks', 'https://example.test/done/');
 
     it('opens what it signed', function () use ($schema): void {
@@ -121,8 +121,8 @@ describe('SchemaSigner', function (): void {
 
 describe('TitleTemplate', function (): void {
     it('replaces {field} placeholders and squeezes the gaps left by empty ones', function (): void {
-        expect(TitleTemplate::render('Submission from {group} {second_group} ({EMAIL})', [ 'group' => 'Bath', 'email' => 'a@b.c' ], 'fallback'))
-            ->toBe('Submission from Bath (a@b.c)');
+        expect(TitleTemplate::render('Submission from {category} {second_category} ({EMAIL})', [ 'category' => 'News', 'email' => 'a@b.c' ], 'fallback'))
+            ->toBe('Submission from News (a@b.c)');
     });
 
     it('falls back when the result is empty', function (): void {

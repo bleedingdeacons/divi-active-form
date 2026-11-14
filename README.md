@@ -35,6 +35,50 @@ are saved through `update_field()`.
    is saved under; leave it blank to derive it from the label. Turn **Full Width** off to
    put two fields side by side.
 
+### Dropdown Options
+
+A new Form Field comes with a working example in its **Dropdown Options** group, so
+switching its Type to a dropdown shows choices straight away. Replace them with your own.
+
+| Setting | Example (the default) | |
+|---|---|---|
+| First Option Text | `Choose an option` | The leading "nothing chosen" line |
+| Options | `small\|Small` · `medium\|Medium` · `large\|Large`, one per line | **Dropdown**: `value\|label`, or just a label |
+| JSON Source | `/wp-json/wp/v2/categories` | **JSON Dropdown**: this site's post categories |
+| Items Path | *(blank)* | Only when the list is nested, e.g. `data.items` |
+| Value Key | *(blank: tries `value`, `id`, `ID`, `slug`)* | e.g. `id` |
+| Label Key | *(blank: tries `label`, `name`, `title.rendered`, `title`)* | e.g. `name` |
+
+The categories example needs no plugin or setup: any WordPress REST collection works
+the same way, e.g. `/wp-json/wp/v2/tags`, `/wp-json/wp/v2/pages?per_page=100`
+(labels from `title.rendered`), or a custom post type's REST route.
+
+### Conditional Logic
+
+Each Form Field has a **Conditional Logic** group with two sets of rules:
+
+- **Show When**: when the rules fail, the field is hidden.
+- **Enable When**: when the rules fail, the field is shown greyed out.
+
+Either way, a field whose rules fail is not sent, not required and not saved. Write
+one rule per line, naming another field by its **Field Name**:
+
+```text
+size = large            equals (ignoring case)
+size != small           does not equal
+email is not empty      has a value          (also: email is empty)
+agree is checked        a ticked checkbox    (also: agree is not checked)
+```
+
+**Show When Matches** and **Enable When Matches** choose whether every rule must hold
+or any one of them. Leave the rules blank for "always". A field hidden or disabled by
+its own rules counts as empty in other fields' rules, so rules can be chained.
+
+The rules run in the browser as the visitor fills in the form. They run again on the
+server against the submitted values, and they are part of the signed schema, so a
+visitor cannot get round them. Without JavaScript every field shows, and the server
+still ignores the ones whose rules fail.
+
 ## JSON Dropdowns
 
 **JSON Source** is a URL or a site path. A path into this site's REST API (`/wp-json/…`
@@ -45,11 +89,12 @@ cached because its result can differ by user. Anything else is fetched with
 These shapes are understood:
 
 ```text
-[{"value": 12, "label": "Bath Tuesday"}]              // the default keys
-[{"id": 12, "title": {"rendered": "Bath Tuesday"}}]   // WordPress REST collections, with no keys set
-["Bath", "Bristol"]                                    // value = label
-{"12": "Bath Tuesday", "15": "Bristol Friday"}        // value => label
-{"data": {"items": [ … ]}}                             // set Items Path to data.items
+[{"value": "s", "label": "Small"}]                    // the default keys
+[{"id": 12, "name": "News"}]                          // /wp/v2/categories and tags, with no keys set
+[{"id": 7, "title": {"rendered": "About"}}]           // /wp/v2/pages and posts, with no keys set
+["Small", "Large"]                                    // value = label
+{"s": "Small", "l": "Large"}                          // value => label
+{"data": {"items": [ … ]}}                            // set Items Path to data.items
 ```
 
 **Value Key** and **Label Key** take dot paths such as `meta.code`. When an item lacks the
@@ -59,13 +104,9 @@ configured key, the usual names are tried (`id` / `ID` / `slug` for the value, `
 The options are read when the page renders, so the form works without JavaScript. They
 are read again on submit, so a value the source does not offer is rejected.
 
-### The groups endpoint
-
-`GET /wp-json/divi-active-form/v1/groups` lists published 12 Step Meeting List groups
-(`tsml_group` posts) as `[{"value": "<post ID>", "label": "<title>"}]`, sorted by title:
-a ready-made source for a "which group?" dropdown. It is public, as TSML's own listings
-are, and returns an empty list when 12 Step Meeting List is not active. Filter it with
-`divi_active_form/groups`.
+A REST source is read as the visitor reading the form, so use a public route (as the
+WordPress collections above are) or the dropdown will be empty for signed-out visitors.
+To supply options from PHP instead, filter `divi_active_form/field_options`.
 
 ## How a submission is handled
 
@@ -100,7 +141,6 @@ The signed schema, the honeypot and the rate limit take its place.
 | `df_after_insert_post` | action | The same moment, with Divi Form Builder's arguments, for code written against that plugin. Only when the form's Fire Divi Form Builder Hook is on |
 | `divi_active_form/field_options` | filter | A dropdown's options, after normalising: `$options, FieldDefinition $field` |
 | `divi_active_form/json_cache_ttl` | filter | Seconds to cache JSON fetched over HTTP (default 300; 0 = off) |
-| `divi_active_form/groups` | filter | The groups endpoint's list |
 | `divi_active_form/rate_limit` | filter | Submissions per IP per ten minutes (default 10; 0 = off) |
 | `divi_active_form/loaded` | action | The plugin has hooked itself in |
 
@@ -108,11 +148,13 @@ Kill switch: `define( 'DIVI_ACTIVE_FORM_KILL', true );` in `wp-config.php`.
 
 ## Development
 
-The dev site is the Local site **aa-bristol-future** (Divi 5, ACF and 12 Step Meeting
-List). Its demo form saves submissions as draft posts.
+The dev site is the Local site **aa-bristol-future** (Divi 5 and ACF). Its demo form
+has a categories JSON Dropdown and a Size dropdown, plus a field shown only for
+Large, a phone number shown only when "Call me back" is ticked, and a message
+enabled only once a category is chosen. It saves submissions as draft posts.
 
 ```bash
-pwsh bin/dev.ps1 setup     # build, junction into the site, activate, seed groups + demo page
+pwsh bin/dev.ps1 setup     # build, junction into the site, activate, seed categories + demo page
 pwsh bin/dev.ps1 composer install
 npm run build              # or: npm run watch
 vendor/bin/pest            # PHP tests (wp-mocks)

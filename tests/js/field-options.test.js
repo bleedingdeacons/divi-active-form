@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { emptyLabel, fieldFromAttrs, optionsQuery, parseStaticOptions, sanitizeName } from '../../assets/src/builder/field-options';
+import { conditionSummary, emptyLabel, fieldFromAttrs, optionsQuery, parseStaticOptions, sanitizeName } from '../../assets/src/builder/field-options';
 
 const attrs = ( label, advanced ) => ( {
 	fieldItem: {
@@ -12,9 +12,9 @@ const attrs = ( label, advanced ) => ( {
 // builder preview must read a field exactly as the front end does.
 describe( 'fieldFromAttrs', () => {
 	it( 'reads a JSON dropdown', () => {
-		expect( fieldFromAttrs( attrs( 'Your group', { name: 'group', type: 'json', required: 'on', source: '/wp-json/x', fullwidth: 'off' } ) ) ).toMatchObject( {
-			name: 'group',
-			label: 'Your group',
+		expect( fieldFromAttrs( attrs( 'Category', { name: 'category', type: 'json', required: 'on', source: '/wp-json/x', fullwidth: 'off' } ) ) ).toMatchObject( {
+			name: 'category',
+			label: 'Category',
 			type: 'json',
 			required: true,
 			fullwidth: false,
@@ -28,8 +28,15 @@ describe( 'fieldFromAttrs', () => {
 		expect( fieldFromAttrs( attrs( 'Email Address!', { type: 'file' } ) ) ).toMatchObject( { name: 'email_address', type: 'text', fullwidth: true } );
 	} );
 
-	it( 'copes with missing attributes', () => {
-		expect( fieldFromAttrs( undefined ) ).toMatchObject( { name: '', label: '', type: 'text' } );
+	it( 'falls back to the module.json defaults, as Divi does on the server', () => {
+		expect( fieldFromAttrs( undefined ) ).toMatchObject( {
+			name: 'field',
+			label: 'Field',
+			type: 'text',
+			source: '/wp-json/wp/v2/categories',
+			emptyLabel: 'Choose an option',
+		} );
+		expect( parseStaticOptions( fieldFromAttrs( undefined ).options ).map( ( o ) => o.label ) ).toEqual( [ 'Small', 'Medium', 'Large' ] );
 	} );
 } );
 
@@ -62,5 +69,17 @@ describe( 'optionsQuery and emptyLabel', () => {
 		expect( emptyLabel( { emptyLabel: 'Choose', placeholder: 'p' } ) ).toBe( 'Choose' );
 		expect( emptyLabel( { emptyLabel: '', placeholder: 'p' } ) ).toBe( 'p' );
 		expect( emptyLabel( { emptyLabel: '', placeholder: '' } ) ).toBe( 'Select…' );
+	} );
+} );
+
+describe( 'Conditional Logic settings', () => {
+	it( 'reads the rules and match, and summarises them for the builder', () => {
+		const field = fieldFromAttrs( attrs( 'Phone', { visibleRules: 'callback is checked\n\n  size = large  ', visibleMatch: 'any', enabledRules: '' } ) );
+
+		expect( field.visibleRules ).toEqual( [ 'callback is checked', 'size = large' ] );
+		expect( field.visibleMatch ).toBe( 'any' );
+		expect( field.enabledRules ).toEqual( [] );
+		expect( conditionSummary( 'Shown', field.visibleRules, field.visibleMatch ) ).toBe( 'Shown when callback is checked or size = large' );
+		expect( conditionSummary( 'Enabled', field.enabledRules, field.enabledMatch ) ).toBe( '' );
 	} );
 } );

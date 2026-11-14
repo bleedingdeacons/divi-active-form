@@ -3,7 +3,7 @@ Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
 Stable tag: 0.1.0
-Build date: 2026/11/14 00:29:15
+Build date: 2026/11/14 01:00:34
 License: GPLv2 or later
 
 Divi 5 form builder: submissions create posts, with dropdowns filled from JSON.
@@ -15,8 +15,10 @@ Each submission creates a post of the type and status the form sets, saves each 
 post meta or ACF, and fires an after-insert action.
 
 Form Fields can be text, email, phone, paragraph, dropdown, checkbox, or a JSON Dropdown
-whose options come from a URL or a site REST path. The plugin also provides
-/wp-json/divi-active-form/v1/groups, which lists 12 Step Meeting List groups for
-"which group?" dropdowns.
+whose options come from a URL or a site REST path, such as
+/wp-json/wp/v2/categories.
+
+Conditional Logic shows or enables each field according to other fields' values
+(e.g. "size = large", "agree is checked"), in the browser and again on the server.
 
 Requires the Divi 5 theme.

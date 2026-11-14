@@ -7,6 +7,84 @@
 
 const FIELD = '[data-daf-field]';
 
+/**
+ * Whether a field's Conditional Logic holds for these values. Mirrors
+ * Conditions::passes() in PHP: trimmed text, compared ignoring case; a missing field
+ * counts as empty; no rules always pass.
+ *
+ * @param {{ any?: boolean, rules?: Array<{ field: string, op: string, value: string }> } | null} conditions
+ * @param {Record<string, string>} values
+ */
+export function passes( conditions, values ) {
+	const rules = ( conditions && conditions.rules ) || [];
+	if ( ! rules.length ) {
+		return true;
+	}
+	const holds = ( rule ) => {
+		const actual = String( values[ rule.field ] ?? '' ).trim();
+		const expected = String( rule.value ?? '' ).trim().toLowerCase();
+		switch ( rule.op ) {
+			case 'empty':
+				return actual === '';
+			case 'filled':
+				return actual !== '';
+			case '!=':
+				return actual.toLowerCase() !== expected;
+			default:
+				return actual.toLowerCase() === expected;
+		}
+	};
+	return conditions.any ? rules.some( holds ) : rules.every( holds );
+}
+
+/**
+ * Each field's state, given every field's raw value. A field's rules see a hidden or
+ * disabled field as empty, so this repeats until nothing changes, as
+ * Validator::activeFields() does on the server, with the same pass limit.
+ *
+ * @param {Array<{ name: string, visible: object | null, enabled: object | null }>} fields
+ * @param {Record<string, string>} values
+ * @returns {Record<string, { visible: boolean, enabled: boolean }>}
+ */
+export function fieldStates( fields, values ) {
+	let states = {};
+	fields.forEach( ( f ) => ( states[ f.name ] = { visible: true, enabled: true } ) );
+
+	for ( let pass = 0; pass <= fields.length; pass++ ) {
+		const seen = {};
+		Object.keys( values ).forEach( ( name ) => {
+			const st = states[ name ];
+			seen[ name ] = ! st || ( st.visible && st.enabled ) ? values[ name ] : '';
+		} );
+
+		const next = {};
+		fields.forEach( ( f ) => {
+			next[ f.name ] = { visible: passes( f.visible, seen ), enabled: passes( f.enabled, seen ) };
+		} );
+
+		const same = fields.every(
+			( f ) => next[ f.name ].visible === states[ f.name ].visible && next[ f.name ].enabled === states[ f.name ].enabled
+		);
+		states = next;
+		if ( same ) {
+			break;
+		}
+	}
+	return states;
+}
+
+const readJson = ( el, attr ) => {
+	const raw = el.getAttribute( attr );
+	if ( ! raw ) {
+		return null;
+	}
+	try {
+		return JSON.parse( raw );
+	} catch ( e ) {
+		return null;
+	}
+};
+
 export class RegisterForm {
 	/**
 	 * @param {HTMLFormElement} form
@@ -21,9 +99,58 @@ export class RegisterForm {
 		this.busy = false;
 		this.onSubmit = this.onSubmit.bind( this );
 		form.addEventListener( 'submit', this.onSubmit );
-		form.addEventListener( 'input', ( event ) => this.clearFieldError( event.target ) );
-		form.addEventListener( 'change', ( event ) => this.clearFieldError( event.target ) );
+		form.addEventListener( 'input', ( event ) => {
+			this.clearFieldError( event.target );
+			this.applyConditions();
+		} );
+		form.addEventListener( 'change', ( event ) => {
+			this.clearFieldError( event.target );
+			this.applyConditions();
+		} );
+		this.fields = Array.from( form.querySelectorAll( FIELD ) ).map( ( wrap ) => ( {
+			wrap,
+			name: wrap.getAttribute( 'data-daf-field' ),
+			visible: readJson( wrap, 'data-daf-visible' ),
+			enabled: readJson( wrap, 'data-daf-enabled' ),
+		} ) );
 		this.markEmptySelects();
+		this.applyConditions();
+	}
+
+	/** Every field's current value, as the server will read it. */
+	values() {
+		const values = {};
+		this.fields.forEach( ( { wrap, name } ) => {
+			const control = wrap.querySelector( '[name]' );
+			if ( ! control ) {
+				values[ name ] = '';
+			} else if ( control.type === 'checkbox' ) {
+				values[ name ] = control.checked ? '1' : '';
+			} else {
+				values[ name ] = String( control.value || '' ).trim();
+			}
+		} );
+		return values;
+	}
+
+	/**
+	 * Hides and disables fields whose Conditional Logic fails. A hidden field is disabled
+	 * too, so it is neither sent nor held to `required`.
+	 */
+	applyConditions() {
+		if ( ! this.fields.some( ( f ) => f.visible || f.enabled ) ) {
+			return;
+		}
+		const states = fieldStates( this.fields, this.values() );
+		this.fields.forEach( ( { wrap, name } ) => {
+			const { visible, enabled } = states[ name ];
+			const container = wrap.closest( '.daf-field-module' ) || wrap;
+			container.hidden = ! visible;
+			wrap.classList.toggle( 'daf-field--disabled', visible && ! enabled );
+			wrap.querySelectorAll( 'input, select, textarea' ).forEach( ( control ) => {
+				control.disabled = ! ( visible && enabled );
+			} );
+		} );
 	}
 
 	destroy() {
@@ -81,6 +208,7 @@ export class RegisterForm {
 				return;
 			}
 			this.form.reset();
+			this.applyConditions();
 			this.form.classList.add( 'daf-form--sent' );
 			this.showMessage( body.message, false );
 			return;

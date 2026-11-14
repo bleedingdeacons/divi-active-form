@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { RegisterForm, initRegisterForms } from '../../assets/src/frontend/form-core';
+import { RegisterForm, initRegisterForms, passes, fieldStates } from '../../assets/src/frontend/form-core';
 
 const markup = `
 <form class="daf-form" method="post" action="/wp-admin/admin-post.php" data-daf-form="" data-rest="/wp-json/divi-active-form/v1/submit">
 	<div class="daf-form__message" role="status" aria-live="polite" hidden></div>
 	<div class="daf-form__fields">
-		<div class="daf-field" data-daf-field="group">
-			<select id="g" name="group" required><option value="">Choose</option><option value="12">Bath</option></select>
+		<div class="daf-field" data-daf-field="category">
+			<select id="g" name="category" required><option value="">Choose</option><option value="12">News</option></select>
 			<span class="daf-field__error" hidden></span>
 		</div>
 		<div class="daf-field" data-daf-field="email">
@@ -46,7 +46,7 @@ describe( 'RegisterForm', () => {
 		const [ url, init ] = fetch.mock.calls[ 0 ];
 		expect( url ).toBe( '/wp-json/divi-active-form/v1/submit' );
 		expect( init.method ).toBe( 'POST' );
-		expect( init.body.get( 'group' ) ).toBe( '12' );
+		expect( init.body.get( 'category' ) ).toBe( '12' );
 		expect( init.body.get( '_daf_schema' ) ).toBe( 'token' );
 	} );
 
@@ -108,7 +108,7 @@ describe( 'RegisterForm', () => {
 		form.querySelector( 'select' ).setAttribute( 'data-daf-empty', 'No options are available right now.' );
 		new RegisterForm( form, { fetch: vi.fn() } );
 
-		const error = form.querySelector( '[data-daf-field="group"] .daf-field__error' );
+		const error = form.querySelector( '[data-daf-field="category"] .daf-field__error' );
 		expect( error.hidden ).toBe( false );
 		expect( error.textContent ).toBe( 'No options are available right now.' );
 	} );
@@ -117,5 +117,87 @@ describe( 'RegisterForm', () => {
 		document.body.innerHTML = markup + markup;
 
 		expect( initRegisterForms( document, { fetch: vi.fn() } ) ).toHaveLength( 2 );
+	} );
+} );
+
+describe( 'Conditional Logic', () => {
+	const conditional = `
+<form data-daf-form="" data-rest="/submit">
+	<div class="daf-form__fields">
+		<div class="daf-field-module"><div class="daf-field" data-daf-field="size">
+			<select name="size"><option value="">-</option><option value="small">Small</option><option value="large">Large</option></select>
+		</div></div>
+		<div class="daf-field-module"><div class="daf-field" data-daf-field="reason"
+			data-daf-visible='{"any":false,"rules":[{"field":"size","op":"=","value":"LARGE"}]}'>
+			<input name="reason" required>
+		</div></div>
+		<div class="daf-field-module"><div class="daf-field" data-daf-field="callback">
+			<input type="checkbox" name="callback" value="1">
+		</div></div>
+		<div class="daf-field-module"><div class="daf-field" data-daf-field="note"
+			data-daf-enabled='{"any":false,"rules":[{"field":"callback","op":"filled","value":""}]}'>
+			<textarea name="note"></textarea>
+		</div></div>
+	</div>
+</form>`;
+
+	const module = ( form, name ) => form.querySelector( `[data-daf-field="${ name }"]` ).closest( '.daf-field-module' );
+
+	it( 'hides and disables a field until its rules hold, then shows it', () => {
+		document.body.innerHTML = conditional;
+		const form = document.querySelector( 'form' );
+		new RegisterForm( form, { fetch: vi.fn() } );
+		const reason = form.querySelector( '[name="reason"]' );
+
+		expect( module( form, 'reason' ).hidden ).toBe( true );
+		expect( reason.disabled ).toBe( true );
+
+		const size = form.querySelector( '[name="size"]' );
+		size.value = 'large';
+		size.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		expect( module( form, 'reason' ).hidden ).toBe( false );
+		expect( reason.disabled ).toBe( false );
+	} );
+
+	it( 'greys out a field until it is enabled, and leaves it out of the submission', () => {
+		document.body.innerHTML = conditional;
+		const form = document.querySelector( 'form' );
+		new RegisterForm( form, { fetch: vi.fn() } );
+		const note = form.querySelector( '[name="note"]' );
+		const wrap = form.querySelector( '[data-daf-field="note"]' );
+
+		expect( module( form, 'note' ).hidden ).toBe( false );
+		expect( wrap.classList.contains( 'daf-field--disabled' ) ).toBe( true );
+		expect( new FormData( form ).has( 'note' ) ).toBe( false );
+
+		const callback = form.querySelector( '[name="callback"]' );
+		callback.checked = true;
+		callback.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		expect( note.disabled ).toBe( false );
+		expect( wrap.classList.contains( 'daf-field--disabled' ) ).toBe( false );
+	} );
+
+	it( 'evaluates rules as the server does', () => {
+		const rule = ( field, op, value = '' ) => ( { field, op, value } );
+
+		expect( passes( null, {} ) ).toBe( true );
+		expect( passes( { rules: [ rule( 'size', '=', 'Large' ) ] }, { size: ' large ' } ) ).toBe( true );
+		expect( passes( { rules: [ rule( 'size', '!=', 'large' ) ] }, {} ) ).toBe( true );
+		expect( passes( { rules: [ rule( 'email', 'empty' ) ] }, {} ) ).toBe( true );
+		expect( passes( { any: true, rules: [ rule( 'a', 'filled' ), rule( 'b', 'filled' ) ] }, { b: 'x' } ) ).toBe( true );
+		expect( passes( { any: false, rules: [ rule( 'a', 'filled' ), rule( 'b', 'filled' ) ] }, { b: 'x' } ) ).toBe( false );
+	} );
+
+	it( 'treats a hidden field as empty in other fields\' rules', () => {
+		const fields = [
+			{ name: 'callback', visible: null, enabled: null },
+			{ name: 'phone', visible: { rules: [ { field: 'callback', op: 'filled', value: '' } ] }, enabled: null },
+			{ name: 'note', visible: null, enabled: { rules: [ { field: 'phone', op: 'filled', value: '' } ] } },
+		];
+
+		expect( fieldStates( fields, { callback: '', phone: '0123', note: '' } ).note.enabled ).toBe( false );
+		expect( fieldStates( fields, { callback: '1', phone: '0123', note: '' } ).note.enabled ).toBe( true );
 	} );
 } );

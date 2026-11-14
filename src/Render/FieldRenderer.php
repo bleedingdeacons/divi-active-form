@@ -60,12 +60,30 @@ final class FieldRenderer
         }
 
         return sprintf(
-            '<div class="%1$s" data-daf-field="%2$s">%3$s<span class="daf-field__error" id="%4$s" role="alert" hidden></span></div>',
+            '<div class="%1$s" data-daf-field="%2$s"%5$s>%3$s<span class="daf-field__error" id="%4$s" role="alert" hidden></span></div>',
             esc_attr(implode(' ', array_filter($classes))),
             esc_attr($field->name),
             $control,
-            esc_attr($errorId)
+            esc_attr($errorId),
+            self::conditionAttrs($field)
         );
+    }
+
+    /**
+     * The field's Conditional Logic, already parsed, for form-core.js to apply. Nothing
+     * is hidden or disabled here: without JavaScript every field shows, and the server
+     * ignores those whose rules fail.
+     */
+    private static function conditionAttrs(FieldDefinition $field): string
+    {
+        $attrs = '';
+        foreach ([ 'visible' => $field->visibleWhen, 'enabled' => $field->enabledWhen ] as $kind => $conditions) {
+            if (! $conditions->isEmpty()) {
+                $attrs .= sprintf(' data-daf-%s="%s"', $kind, esc_attr((string) wp_json_encode($conditions->toArray())));
+            }
+        }
+
+        return $attrs;
     }
 
     private static function label(FieldDefinition $field, string $id): string

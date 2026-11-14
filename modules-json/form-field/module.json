@@ -55,6 +55,31 @@
             "desktop": {
               "value": "on"
             }
+          },
+          "emptyLabel": {
+            "desktop": {
+              "value": "Choose an option"
+            }
+          },
+          "options": {
+            "desktop": {
+              "value": "small|Small\nmedium|Medium\nlarge|Large"
+            }
+          },
+          "source": {
+            "desktop": {
+              "value": "/wp-json/wp/v2/categories"
+            }
+          },
+          "visibleMatch": {
+            "desktop": {
+              "value": "all"
+            }
+          },
+          "enabledMatch": {
+            "desktop": {
+              "value": "all"
+            }
           }
         }
       },
@@ -87,7 +112,7 @@
               "groupSlug": "contentField",
               "attrName": "fieldItem.advanced.name",
               "label": "Field Name",
-              "description": "The post meta / ACF field the value is saved to, e.g. group or email. Leave blank to derive it from the label.",
+              "description": "The post meta / ACF field the value is saved to, e.g. size or email. Leave blank to derive it from the label.",
               "priority": 10,
               "render": true,
               "features": {
@@ -217,7 +242,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.emptyLabel",
               "label": "First Option Text",
-              "description": "Dropdowns: the leading 'nothing chosen' option, e.g. Choose your group.",
+              "description": "Dropdowns: the leading 'nothing chosen' option, e.g. Choose an option.",
               "priority": 10,
               "render": true,
               "features": {
@@ -238,7 +263,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.options",
               "label": "Options",
-              "description": "Dropdown only: one option per line, as value|label, or just a label.",
+              "description": "Dropdown only: one option per line, as value|label, or just a label. Example: small|Small, medium|Medium, large|Large, each on its own line.",
               "priority": 20,
               "render": true,
               "features": {
@@ -259,7 +284,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.source",
               "label": "JSON Source",
-              "description": "JSON Dropdown only: a URL or site path returning JSON. For 12 Step Meeting List groups use /wp-json/divi-active-form/v1/groups.",
+              "description": "JSON Dropdown only: a URL or site path returning JSON. Example: /wp-json/wp/v2/categories lists this site's post categories; any WordPress REST collection works the same way.",
               "priority": 30,
               "render": true,
               "features": {
@@ -280,7 +305,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.itemsPath",
               "label": "Items Path",
-              "description": "JSON Dropdown: dot path to the list inside the JSON, e.g. data.items. Leave blank when the JSON is the list.",
+              "description": "JSON Dropdown: dot path to the list inside the JSON. Example: data.items for {\"data\": {\"items\": [...]}}. Leave blank when the JSON is the list.",
               "priority": 40,
               "render": true,
               "features": {
@@ -301,7 +326,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.valueKey",
               "label": "Value Key",
-              "description": "JSON Dropdown: key (or dot path) of each item's value. Default: value, falling back to id.",
+              "description": "JSON Dropdown: key (or dot path) of each item's value. Example: id. Leave blank to try value, id, ID, then slug.",
               "priority": 50,
               "render": true,
               "features": {
@@ -322,7 +347,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.labelKey",
               "label": "Label Key",
-              "description": "JSON Dropdown: key (or dot path) of each item's label. Default: label, falling back to name or title.rendered.",
+              "description": "JSON Dropdown: key (or dot path) of each item's label. Example: name or title.rendered. Leave blank to try label, name, title.rendered, then title.",
               "priority": 60,
               "render": true,
               "features": {
@@ -334,6 +359,110 @@
               "component": {
                 "type": "field",
                 "name": "divi/text"
+              }
+            }
+          },
+          "visibleRules": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentConditions",
+              "attrName": "fieldItem.advanced.visibleRules",
+              "label": "Show When",
+              "description": "Show this field only when these rules hold; otherwise it is hidden, not required, and not saved. One rule per line, naming another field by its Field Name: size = large, size != small, email is not empty, email is empty, agree is checked, agree is not checked. Values ignore case. Leave blank for always.",
+              "priority": 10,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi/textarea"
+              }
+            }
+          },
+          "visibleMatch": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentConditions",
+              "attrName": "fieldItem.advanced.visibleMatch",
+              "label": "Show When Matches",
+              "description": "Whether every Show When rule must hold, or any one of them.",
+              "priority": 20,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi/select",
+                "props": {
+                  "options": {
+                    "all": {
+                      "label": "All rules"
+                    },
+                    "any": {
+                      "label": "Any rule"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "enabledRules": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentConditions",
+              "attrName": "fieldItem.advanced.enabledRules",
+              "label": "Enable When",
+              "description": "Let visitors fill in this field only when these rules hold; otherwise it is shown greyed out, not required, and not saved. One rule per line, naming another field by its Field Name: size = large, size != small, email is not empty, email is empty, agree is checked, agree is not checked. Values ignore case. Leave blank for always.",
+              "priority": 30,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi/textarea"
+              }
+            }
+          },
+          "enabledMatch": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentConditions",
+              "attrName": "fieldItem.advanced.enabledMatch",
+              "label": "Enable When Matches",
+              "description": "Whether every Enable When rule must hold, or any one of them.",
+              "priority": 40,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi/select",
+                "props": {
+                  "options": {
+                    "all": {
+                      "label": "All rules"
+                    },
+                    "any": {
+                      "label": "Any rule"
+                    }
+                  }
+                }
               }
             }
           }
@@ -366,6 +495,17 @@
           "name": "divi/composite",
           "props": {
             "groupLabel": "Dropdown Options"
+          }
+        }
+      },
+      "contentConditions": {
+        "panel": "content",
+        "priority": 30,
+        "groupName": "contentConditions",
+        "component": {
+          "name": "divi/composite",
+          "props": {
+            "groupLabel": "Conditional Logic"
           }
         }
       }

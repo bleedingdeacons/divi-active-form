@@ -5,10 +5,10 @@
  *
  * Accepted shapes, after `itemsPath` has picked the list out of the document:
  *
- *   ["Bath", "Bristol"]                                  value = label = the string
- *   [{"value": 12, "label": "Tuesday Group"}, ...]       keys from valueKey / labelKey
- *   [{"id": 12, "title": {"rendered": "Tuesday"}}, ...]  dot paths, e.g. labelKey "title.rendered"
- *   {"12": "Tuesday Group", "15": "Friday Group"}        an object map: key = value, entry = label
+ *   ["Small", "Large"]                                   value = label = the string
+ *   [{"value": "s", "label": "Small"}, ...]              keys from valueKey / labelKey
+ *   [{"id": 12, "title": {"rendered": "News"}}, ...]     dot paths, e.g. labelKey "title.rendered"
+ *   {"s": "Small", "l": "Large"}                         an object map: key = value, entry = label
  *
  * When an object item lacks the configured key, the usual alternatives are tried
  * (id / ID / slug for the value, name / title / title.rendered for the label), so

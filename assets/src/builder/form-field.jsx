@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { ModuleContainer, StyleContainer, elementClassnames } from '@divi/module';
 import metadata from '../../../modules-json/form-field/module.json';
-import { emptyLabel, fieldFromAttrs, optionsQuery, parseStaticOptions } from './field-options';
+import { conditionSummary, emptyLabel, fieldFromAttrs, optionsQuery, parseStaticOptions } from './field-options';
 
 const builderData = () => window.DiviActiveFormBuilderData || {};
 
@@ -132,6 +132,15 @@ const JsonStatus = ( { field, json } ) => {
 	return null;
 };
 
+/** The field's Conditional Logic, in words: the builder always shows the field. */
+const Conditions = ( { field } ) => {
+	const lines = [
+		conditionSummary( 'Shown', field.visibleRules, field.visibleMatch ),
+		conditionSummary( 'Enabled', field.enabledRules, field.enabledMatch ),
+	].filter( Boolean );
+	return lines.length ? <Note>{ lines.join( ' · ' ) }</Note> : null;
+};
+
 const FormFieldEdit = ( { attrs, elements, id, name } ) => {
 	const field = fieldFromAttrs( attrs );
 	const json = useJsonOptions( field );
@@ -145,6 +154,7 @@ const FormFieldEdit = ( { attrs, elements, id, name } ) => {
 				<label className="daf-field__checkbox">
 					<input type="checkbox" tabIndex={ -1 } readOnly /> <span>{ field.label }</span>
 				</label>
+				<Conditions field={ field } />
 			</div>
 		);
 	} else {
@@ -158,6 +168,7 @@ const FormFieldEdit = ( { attrs, elements, id, name } ) => {
 				) }
 				<Control field={ field } json={ json } />
 				<JsonStatus field={ field } json={ json } />
+				<Conditions field={ field } />
 			</div>
 		);
 	}

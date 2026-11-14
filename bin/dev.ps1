@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Dev environment for Divi Active Form, on a Local (localwp.com) site running Divi 5 (and 12 Step Meeting List for the sample groups).
+    Dev environment for Divi Active Form, on a Local (localwp.com) site running Divi 5.
 
 .DESCRIPTION
     Works against the Local site named by -Site (default: aa-bristol-future). The site must be
@@ -11,9 +11,9 @@
       link      junction <site>\wp-content\plugins\divi-active-form -> this checkout
       unlink    remove that junction (rmdir, never a recursive delete through it)
       activate  wp plugin activate divi-active-form
-      seed      sample TSML groups and a Register Form demo page
+      seed      sample categories and a Register Form demo page
       reset     remove the sample data only
-      wp        run any WP-CLI command, e.g.  .\bin\dev.ps1 wp post list --post_type=tsml_group
+      wp        run any WP-CLI command, e.g.  .\bin\dev.ps1 wp post list --post_type=page
       composer  run Local's bundled Composer in this checkout, e.g.  .\bin\dev.ps1 composer install
       info      print the resolved paths and URLs
 

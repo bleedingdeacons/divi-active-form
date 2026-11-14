@@ -9,20 +9,20 @@ use DiviActiveForm\Render\FormRenderer;
 
 describe('FieldRenderer', function (): void {
     it('renders a JSON dropdown with its options, escaped', function (): void {
-        $field = new FieldDefinition('group', 'Your group', FieldType::Json, true, emptyLabel: 'Choose your group');
-        $html  = FieldRenderer::render($field, [ [ 'value' => '12', 'label' => 'Tea & "Toast"' ] ], 'daf-0-group');
+        $field = new FieldDefinition('category', 'Category', FieldType::Json, true, emptyLabel: 'Choose a category');
+        $html  = FieldRenderer::render($field, [ [ 'value' => '12', 'label' => 'Tea & "Toast"' ] ], 'daf-0-category');
 
         expect($html)
-            ->toContain('data-daf-field="group"')
-            ->toContain('<label class="daf-field__label" for="daf-0-group">Your group')
-            ->toContain('<select class="daf-field__input daf-field__select" id="daf-0-group" name="group" aria-describedby="daf-0-group-error" required aria-required="true">')
-            ->toContain('<option value="">Choose your group</option>')
+            ->toContain('data-daf-field="category"')
+            ->toContain('<label class="daf-field__label" for="daf-0-category">Category')
+            ->toContain('<select class="daf-field__input daf-field__select" id="daf-0-category" name="category" aria-describedby="daf-0-category-error" required aria-required="true">')
+            ->toContain('<option value="">Choose a category</option>')
             ->toContain('<option value="12">Tea &amp; &quot;Toast&quot;</option>')
             ->not->toContain('data-daf-empty');
     });
 
     it('flags a JSON dropdown whose source returned nothing', function (): void {
-        $html = FieldRenderer::render(new FieldDefinition('group', 'Group', FieldType::Json), [], 'g');
+        $html = FieldRenderer::render(new FieldDefinition('category', 'Category', FieldType::Json), [], 'g');
 
         expect($html)->toContain('data-daf-empty=');
     });

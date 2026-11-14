@@ -1,16 +1,17 @@
 <?php
 /**
- * Seeds the dev site with sample TSML groups and a Register Form demo page.
+ * Seeds the dev site with sample post categories and a Register Form demo page.
  *
  * Run through WP-CLI (bin/dev.ps1 seed does this):
  *   wp eval-file bin/seed.php            create sample data (idempotent: replaces earlier samples)
  *   wp eval-file bin/seed.php reset      remove sample data only
  *
- * Everything created is tagged with the `_daf_sample` meta key, so reset never touches
- * real content. Submissions made on the demo page are not samples and are left alone.
+ * Everything created is tagged with the `_daf_sample` post or term meta key, so reset
+ * never touches real content. Submissions made on the demo page are not samples and are
+ * left alone.
  *
- * The demo form saves each submission as a draft post titled from the chosen group, so
- * it can be submitted end to end without publishing anything.
+ * The demo form saves each submission as a draft post titled from the chosen category,
+ * so it can be submitted end to end without publishing anything.
  *
  * @package DiviActiveForm
  */
@@ -30,7 +31,7 @@ $daf_mode = $args[0] ?? 'seed';
 $daf_reset = static function (): void {
 	$ids = get_posts(
 		[
-			'post_type'      => [ 'tsml_group', 'page' ],
+			'post_type'      => 'page',
 			'post_status'    => 'any',
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
@@ -40,7 +41,21 @@ $daf_reset = static function (): void {
 	foreach ( $ids as $id ) {
 		wp_delete_post( $id, true );
 	}
-	WP_CLI::log( sprintf( 'Removed %d sample post(s).', count( $ids ) ) );
+
+	$terms = get_terms(
+		[
+			'taxonomy'   => 'category',
+			'hide_empty' => false,
+			'fields'     => 'ids',
+			'meta_key'   => DAF_SAMPLE_META, // phpcs:ignore WordPress.DB.SlowDBQuery
+		]
+	);
+	$terms = is_array( $terms ) ? $terms : [];
+	foreach ( $terms as $term_id ) {
+		wp_delete_term( (int) $term_id, 'category' );
+	}
+
+	WP_CLI::log( sprintf( 'Removed %d sample page(s) and %d sample category(ies).', count( $ids ), count( $terms ) ) );
 };
 
 $daf_reset();
@@ -49,26 +64,17 @@ if ( 'reset' === $daf_mode ) {
 	return;
 }
 
-// Sample groups, only when 12 Step Meeting List provides the post type.
-if ( post_type_exists( 'tsml_group' ) ) {
-	foreach ( [ 'Bath Tuesday Group', 'Bristol Central Friday', 'Clifton Big Book Study', 'Keynsham Saturday Morning', 'Weston-super-Mare Step Group' ] as $daf_name ) {
-		$daf_group = wp_insert_post(
-			[
-				'post_type'   => 'tsml_group',
-				'post_status' => 'publish',
-				'post_title'  => $daf_name,
-				'meta_input'  => [ DAF_SAMPLE_META => 1 ],
-			],
-			true
-		);
-		if ( is_wp_error( $daf_group ) ) {
-			WP_CLI::warning( "Could not create {$daf_name}: " . $daf_group->get_error_message() );
-		}
+// Sample post categories, so the demo's JSON Dropdown (WordPress's own
+// /wp/v2/categories, which lists empty categories too) has something to list.
+foreach ( [ 'Sample: News', 'Sample: Events', 'Sample: Notices' ] as $daf_name ) {
+	$daf_term = wp_insert_term( $daf_name, 'category' );
+	if ( is_wp_error( $daf_term ) ) {
+		WP_CLI::warning( "Could not create {$daf_name}: " . $daf_term->get_error_message() );
+		continue;
 	}
-	WP_CLI::log( 'Created 5 sample groups.' );
-} else {
-	WP_CLI::warning( '12 Step Meeting List is not active, so there are no groups and the group dropdowns will be empty.' );
+	add_term_meta( (int) $daf_term['term_id'], DAF_SAMPLE_META, 1 );
 }
+WP_CLI::log( 'Created 3 sample categories.' );
 
 $daf_version = defined( 'ET_BUILDER_PRODUCT_VERSION' ) ? ET_BUILDER_PRODUCT_VERSION : '5.0.0';
 
@@ -93,25 +99,34 @@ $daf_field = static function ( string $label, array $settings ) use ( $daf_versi
 	return '<!-- wp:divi-active-form/form-field ' . wp_json_encode( $attrs ) . ' --><!-- /wp:divi-active-form/form-field -->';
 };
 
-$daf_groups = '/wp-json/divi-active-form/v1/groups';
-
 $daf_fields = $daf_field(
-	'Your group',
+	'Category',
 	[
-		'name'       => 'group',
+		'name'       => 'category',
 		'type'       => 'json',
 		'required'   => 'on',
-		'source'     => $daf_groups,
-		'emptyLabel' => 'Choose your group',
+		'source'     => '/wp-json/wp/v2/categories?per_page=100',
+		'valueKey'   => 'id',
+		'labelKey'   => 'name',
+		'emptyLabel' => 'Choose a category',
 	]
 )
 	. $daf_field(
-		'Topic',
+		'Size',
 		[
-			'name'       => 'topic',
+			'name'       => 'size',
 			'type'       => 'select',
-			'options'    => "general|General enquiry\nservice|Service\nliterature|Literature",
-			'emptyLabel' => 'Choose a topic',
+			'options'    => "small|Small\nmedium|Medium\nlarge|Large",
+			'emptyLabel' => 'Choose a size',
+		]
+	)
+	// Conditional Logic: shown only for one dropdown choice.
+	. $daf_field(
+		'Why large?',
+		[
+			'name'         => 'large_reason',
+			'type'         => 'text',
+			'visibleRules' => 'size = large',
 		]
 	)
 	. $daf_field(
@@ -121,22 +136,32 @@ $daf_fields = $daf_field(
 			'type'        => 'email',
 			'required'    => 'on',
 			'placeholder' => 'you@example.org',
-			'fullwidth'   => 'off',
 		]
 	)
+	. $daf_field(
+		'Call me back',
+		[
+			'name' => 'callback',
+			'type' => 'checkbox',
+		]
+	)
+	// Conditional Logic: required, but only while it is shown.
 	. $daf_field(
 		'Phone',
 		[
-			'name'      => 'phone',
-			'type'      => 'tel',
-			'fullwidth' => 'off',
+			'name'         => 'phone',
+			'type'         => 'tel',
+			'required'     => 'on',
+			'visibleRules' => 'callback is checked',
 		]
 	)
+	// Conditional Logic: greyed out until a category is chosen.
 	. $daf_field(
 		'Message',
 		[
-			'name' => 'message',
-			'type' => 'textarea',
+			'name'         => 'message',
+			'type'         => 'textarea',
+			'enabledRules' => 'category is not empty',
 		]
 	);
 
@@ -147,7 +172,7 @@ $daf_form_attrs = [
 			'successMessage' => [ 'desktop' => [ 'value' => 'Thank you. We will be in touch soon.' ] ],
 			'postType'       => [ 'desktop' => [ 'value' => 'post' ] ],
 			'postStatus'     => [ 'desktop' => [ 'value' => 'draft' ] ],
-			'titleTemplate'  => [ 'desktop' => [ 'value' => 'Submission from {group}' ] ],
+			'titleTemplate'  => [ 'desktop' => [ 'value' => 'Submission about {category}' ] ],
 		],
 	],
 	'builderVersion' => $daf_version,

@@ -6,6 +6,10 @@
  * Only fields in the schema are read; anything else in the request is ignored. A
  * dropdown's value must be one of the options the field offers now.
  *
+ * A field whose Conditional Logic leaves it hidden or disabled, judged on the submitted
+ * values, takes no part: it is not required, not checked and not returned, whatever
+ * the browser sent for it.
+ *
  * @package DiviActiveForm
  */
 
@@ -39,12 +43,21 @@ final class Validator
      */
     public function validate(FormSchema $schema, array $input): array
     {
+        $cleaned = [];
+        foreach ($schema->fields as $field) {
+            $raw                     = $input[ $field->name ] ?? '';
+            $cleaned[ $field->name ] = is_scalar($raw) ? $this->clean($field, (string) $raw) : '';
+        }
+        $active = self::activeFields($schema, $cleaned);
+
         $values = [];
         $errors = [];
 
         foreach ($schema->fields as $field) {
-            $raw   = $input[ $field->name ] ?? '';
-            $value = is_scalar($raw) ? $this->clean($field, (string) $raw) : '';
+            if (! isset($active[ $field->name ])) {
+                continue;
+            }
+            $value = $cleaned[ $field->name ];
             $error = $this->check($field, $value);
 
             if (null !== $error) {
@@ -58,6 +71,41 @@ final class Validator
             'values' => $values,
             'errors' => $errors,
         ];
+    }
+
+    /**
+     * The fields that are visible and enabled. A field's rules see an inactive field as
+     * empty, so a chain (C shows when B is filled, B shows when A is "yes") settles by
+     * repeating until nothing changes. A chain settles within one pass per field; the
+     * pass limit only stops rules that depend on each other in a circle from looping.
+     * The browser (form-core.js) does the same.
+     *
+     * @param array<string, string> $cleaned
+     * @return array<string, true>
+     */
+    public static function activeFields(FormSchema $schema, array $cleaned): array
+    {
+        $active = array_fill_keys(array_keys($cleaned), true);
+
+        for ($pass = 0; $pass <= count($schema->fields); $pass++) {
+            $seen = [];
+            foreach ($cleaned as $name => $value) {
+                $seen[ $name ] = isset($active[ $name ]) ? $value : '';
+            }
+
+            $next = [];
+            foreach ($schema->fields as $field) {
+                if ($field->isActive($seen)) {
+                    $next[ $field->name ] = true;
+                }
+            }
+            if ($next === $active) {
+                break;
+            }
+            $active = $next;
+        }
+
+        return $active;
     }
 
     private function clean(FieldDefinition $field, string $raw): string

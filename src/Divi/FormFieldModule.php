@@ -46,8 +46,8 @@ final class FormFieldModule implements DependencyInterface
     }
 
     /**
-     * One FieldOptions per request, so a JSON source shared by several fields (group and
-     * a second group) is read once.
+     * One FieldOptions per request, so a JSON source shared by several fields is read
+     * once.
      */
     public static function options(): FieldOptions
     {

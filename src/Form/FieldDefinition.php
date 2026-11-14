@@ -30,6 +30,8 @@ final class FieldDefinition
      * @param string $valueKey    JSON dropdown only: dot path of each item's value.
      * @param string $labelKey    JSON dropdown only: dot path of each item's label.
      * @param string $emptyLabel  Dropdowns: text of the leading "nothing chosen" option.
+     * @param Conditions $visibleWhen When the field is shown; hidden fields are not sent or saved.
+     * @param Conditions $enabledWhen When the field can be filled in; disabled fields are not sent or saved.
      */
     public function __construct(
         public readonly string $name,
@@ -44,6 +46,8 @@ final class FieldDefinition
         public readonly string $valueKey = 'value',
         public readonly string $labelKey = 'label',
         public readonly string $emptyLabel = '',
+        public readonly Conditions $visibleWhen = new Conditions(),
+        public readonly Conditions $enabledWhen = new Conditions(),
     ) {
     }
 
@@ -72,7 +76,20 @@ final class FieldDefinition
             valueKey: '' !== $setting('valueKey') ? $setting('valueKey') : 'value',
             labelKey: '' !== $setting('labelKey') ? $setting('labelKey') : 'label',
             emptyLabel: $setting('emptyLabel'),
+            visibleWhen: Conditions::parse(Attrs::string(Attrs::desktop($attrs, 'fieldItem.advanced.visibleRules')), $setting('visibleMatch')),
+            enabledWhen: Conditions::parse(Attrs::string(Attrs::desktop($attrs, 'fieldItem.advanced.enabledRules')), $setting('enabledMatch')),
         );
+    }
+
+    /**
+     * Whether the field takes part in a submission, given the other fields' values: it
+     * must be both visible and enabled.
+     *
+     * @param array<string, string> $values
+     */
+    public function isActive(array $values): bool
+    {
+        return $this->visibleWhen->passes($values) && $this->enabledWhen->passes($values);
     }
 
     /**
@@ -90,7 +107,7 @@ final class FieldDefinition
     }
 
     /**
-     * @return array<string, string|bool>
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
@@ -107,6 +124,8 @@ final class FieldDefinition
             'valueKey'    => $this->valueKey,
             'labelKey'    => $this->labelKey,
             'emptyLabel'  => $this->emptyLabel,
+            'visibleWhen' => $this->visibleWhen->toArray(),
+            'enabledWhen' => $this->enabledWhen->toArray(),
         ];
     }
 
@@ -130,6 +149,8 @@ final class FieldDefinition
             valueKey: $string('valueKey', 'value'),
             labelKey: $string('labelKey', 'label'),
             emptyLabel: $string('emptyLabel'),
+            visibleWhen: Conditions::fromArray($data['visibleWhen'] ?? null),
+            enabledWhen: Conditions::fromArray($data['enabledWhen'] ?? null),
         );
     }
 }

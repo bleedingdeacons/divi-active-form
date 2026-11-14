@@ -30,7 +30,6 @@
             <file>src/Plugin.php</file>
             <file>src/Assets.php</file>
             <file>src/Rest/FormController.php</file>
-            <file>src/Groups/GroupRepository.php</file>
             <file>src/Form/Options/FieldOptions.php</file>
         </exclude>
     </source>
