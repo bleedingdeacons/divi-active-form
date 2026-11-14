@@ -26,10 +26,10 @@ are saved through `update_field()`.
    | Setting | Default | |
    |---|---|---|
    | Form ID | `active-form` | Passed to the after-insert hooks so they can tell forms apart |
-   | Post Type | `post` | Any registered post type |
+   | Post Type | `post` | An editable dropdown: ▾ lists the site's content post types (filter `divi_active_form/post_types`), or type any registered post type's name |
    | Post Status | Pending Review | Published, Pending Review, Draft or Private |
    | Post Title | automatic | `{field_name}` placeholders, e.g. `Submission from {email}` |
-   | Fire daf_after_insert_post | off | Also fire `daf_after_insert_post` (see below) |
+   | Fire After-Insert Hook | off | Also fire `daf_after_insert_post` (see below) |
 
 2. Add **Form Fields**. Each one's **Field Name** is the post meta (or ACF field) the value
    is saved under; leave it blank to derive it from the label.
@@ -171,7 +171,7 @@ The signed schema, the honeypot and the rate limit take its place.
 | Hook | Type | Purpose |
 |---|---|---|
 | `divi_active_form/after_insert_post` | action | After a submission is saved: `$formId, $postId, $values` |
-| `daf_after_insert_post` | action | The same moment, with just `$formId, $postId`. Only when the form's Fire daf_after_insert_post setting is on |
+| `daf_after_insert_post` | action | The same moment, with just `$formId, $postId`. Only when the form's Fire After-Insert Hook setting is on |
 | `divi_active_form/field_options` | filter | A dropdown's options, after normalising: `$options, FieldDefinition $field` |
 | `divi_active_form/json_cache_ttl` | filter | Seconds to cache JSON fetched over HTTP (default 300; 0 = off) |
 | `divi_active_form/rate_limit` | filter | Submissions per IP per ten minutes (default 10; 0 = off) |

@@ -200,7 +200,7 @@
               "groupSlug": "contentSubmission",
               "attrName": "form.advanced.postType",
               "label": "Post Type",
-              "description": "Each submission creates a post of this type.",
+              "description": "Each submission creates a post of this type. Choose from the post types registered on this site (▾ lists them all), or type a post type's name.",
               "priority": 20,
               "render": true,
               "features": {
@@ -211,7 +211,7 @@
               },
               "component": {
                 "type": "field",
-                "name": "divi/text"
+                "name": "divi-active-form/post-type"
               }
             }
           },
@@ -278,8 +278,8 @@
             "item": {
               "groupSlug": "contentSubmission",
               "attrName": "form.advanced.legacyHook",
-              "label": "Fire daf_after_insert_post",
-              "description": "Also fire the daf_after_insert_post action, with the form ID and the new post ID, after divi_active_form/after_insert_post.",
+              "label": "Fire After-Insert Hook",
+              "description": "Also fire the daf_after_insert_post action, with the form ID and the new post ID, after divi_active_form/after_insert_post. Off by default.",
               "priority": 50,
               "render": true,
               "features": {
