@@ -25,7 +25,8 @@ describe('FieldDefinition', function (): void {
             'type'       => 'json',
             'required'   => 'on',
             'source'     => '/wp-json/wp/v2/categories',
-            'fullwidth'  => 'off',
+            'width'      => '75',
+            'labelPosition' => 'left',
             'emptyLabel' => 'Choose',
         ]));
 
@@ -33,7 +34,8 @@ describe('FieldDefinition', function (): void {
             ->and($field->label)->toBe('Category')
             ->and($field->type)->toBe(FieldType::Json)
             ->and($field->required)->toBeTrue()
-            ->and($field->fullwidth)->toBeFalse()
+            ->and($field->width)->toBe('75')
+            ->and($field->labelPosition)->toBe('left')
             ->and($field->source)->toBe('/wp-json/wp/v2/categories')
             ->and($field->valueKey)->toBe('value')
             ->and($field->labelKey)->toBe('label')
@@ -49,19 +51,39 @@ describe('FieldDefinition', function (): void {
             ->and(FieldDefinition::sanitizeName('__-x'))->toBe('x');
     });
 
+    it('falls back to full width and a top label for unknown or missing settings', function (): void {
+        $field = FieldDefinition::fromAttrs(dafField('A', [ 'width' => '33', 'labelPosition' => 'right' ]));
+
+        expect($field->width)->toBe('100')
+            ->and($field->labelPosition)->toBe('top')
+            ->and(FieldDefinition::fromAttrs(dafField('A', []))->width)->toBe('100');
+    });
+
+    it('reads the hint and its position, defaulting to below', function (): void {
+        $attrs = dafField('Email', []) + [ 'hint' => [ 'advanced' => [
+            'text'     => [ 'desktop' => [ 'value' => '  We only use this to reply.  ' ] ],
+            'position' => [ 'desktop' => [ 'value' => 'above' ] ],
+        ] ] ];
+
+        expect(FieldDefinition::fromAttrs($attrs)->hint)->toBe('We only use this to reply.')
+            ->and(FieldDefinition::fromAttrs($attrs)->hintPosition)->toBe('above')
+            ->and(FieldDefinition::fromAttrs(dafField('Email', []))->hintPosition)->toBe('below')
+            ->and(FieldDefinition::hintPosition('sideways'))->toBe('below');
+    });
+
     it('treats an unknown type as text', function (): void {
         expect(FieldDefinition::fromAttrs(dafField('A', [ 'type' => 'file' ]))->type)->toBe(FieldType::Text);
     });
 
     it('survives a round trip through an array', function (): void {
-        $field = new FieldDefinition('second_category', 'Second', FieldType::Json, false, 'p', false, '', '/src', 'items', 'id', 'name', 'None');
+        $field = new FieldDefinition('second_category', 'Second', FieldType::Json, false, 'p', '25', '', '/src', 'items', 'id', 'name', 'None', 'below', 'A hint', 'above');
 
         expect(FieldDefinition::fromArray($field->toArray()))->toEqual($field);
     });
 });
 
 describe('FormSchema', function (): void {
-    it('defaults to a pending post, with the Divi Form Builder hook off', function (): void {
+    it('defaults to a pending post, with daf_after_insert_post off', function (): void {
         $schema = FormSchema::fromAttrs([], []);
 
         expect($schema->postStatus)->toBe('pending')

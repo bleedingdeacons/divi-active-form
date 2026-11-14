@@ -108,7 +108,7 @@ final class FormFieldModule implements DependencyInterface
         $attrs = Attrs::map($args['attrs'] ?? []);
 
         $classnames->add('daf-field-module', true);
-        $classnames->add('daf-field-module--half', 'off' === Attrs::string(Attrs::desktop($attrs, 'fieldItem.advanced.fullwidth')));
+        $classnames->add('daf-field-module--w' . FieldDefinition::width(Attrs::string(Attrs::desktop($attrs, 'fieldItem.advanced.width'))), true);
         $classnames->add(ElementClassnames::classnames([ 'attrs' => Attrs::map(Attrs::at($attrs, 'module.decoration')) ]));
     }
 
@@ -121,6 +121,8 @@ final class FormFieldModule implements DependencyInterface
         if (! $elements instanceof ModuleElements) {
             return;
         }
+        $attrs       = Attrs::map($args['attrs'] ?? []);
+        $order_class = Attrs::string($args['orderClass'] ?? '');
 
         Style::add(
             [
@@ -135,6 +137,24 @@ final class FormFieldModule implements DependencyInterface
                             'styleProps' => [
                                 'disabledOn' => [
                                     'disabledModuleVisibility' => Attrs::at(Attrs::map($args['settings'] ?? []), 'disabledModuleVisibility'),
+                                ],
+                            ],
+                        ]
+                    ),
+                    // Hint Colour; unset, the hint stays the stylesheet's grey.
+                    $elements->style(
+                        [
+                            'attrName'   => 'hint',
+                            'styleProps' => [
+                                'advancedStyles' => [
+                                    [
+                                        'componentName' => 'divi/common',
+                                        'props'         => [
+                                            'selector' => $order_class . ' .daf-field__hint',
+                                            'attr'     => Attrs::at($attrs, 'hint.advanced.color'),
+                                            'property' => 'color',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ]

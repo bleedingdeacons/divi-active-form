@@ -82,8 +82,9 @@ $daf_version = defined( 'ET_BUILDER_PRODUCT_VERSION' ) ? ET_BUILDER_PRODUCT_VERS
  * One Form Field block.
  *
  * @param array<string, string> $settings fieldItem.advanced settings.
+ * @param array<string, string> $hint     hint.advanced settings: text, position, color.
  */
-$daf_field = static function ( string $label, array $settings ) use ( $daf_version ): string {
+$daf_field = static function ( string $label, array $settings, array $hint = [] ) use ( $daf_version ): string {
 	$advanced = [];
 	foreach ( $settings as $key => $value ) {
 		$advanced[ $key ] = [ 'desktop' => [ 'value' => $value ] ];
@@ -95,6 +96,9 @@ $daf_field = static function ( string $label, array $settings ) use ( $daf_versi
 		],
 		'builderVersion' => $daf_version,
 	];
+	foreach ( $hint as $key => $value ) {
+		$attrs['hint']['advanced'][ $key ] = [ 'desktop' => [ 'value' => $value ] ];
+	}
 
 	return '<!-- wp:divi-active-form/form-field ' . wp_json_encode( $attrs ) . ' --><!-- /wp:divi-active-form/form-field -->';
 };
@@ -109,24 +113,42 @@ $daf_fields = $daf_field(
 		'valueKey'   => 'id',
 		'labelKey'   => 'name',
 		'emptyLabel' => 'Choose a category',
+		'width'      => '75',
 	]
 )
 	. $daf_field(
 		'Size',
 		[
-			'name'       => 'size',
-			'type'       => 'select',
-			'options'    => "small|Small\nmedium|Medium\nlarge|Large",
-			'emptyLabel' => 'Choose a size',
+			'name'        => 'size',
+			'type'        => 'select',
+			'options'     => "small|Small\nmedium|Medium\nlarge|Large",
+			'placeholder' => 'Choose a size', // A dropdown shows its placeholder as the first option.
+			'width'       => '25',
 		]
 	)
-	// Conditional Logic: shown only for one dropdown choice.
+	// The example JSON endpoint, in its nested shape, read with Items Path and keys.
+	. $daf_field(
+		'Favourite colour',
+		[
+			'name'       => 'colour',
+			'type'       => 'json',
+			'source'     => '/wp-json/divi-active-form/v1/example-options?shape=nested',
+			'itemsPath'  => 'data.items',
+			'valueKey'   => 'code',
+			'labelKey'   => 'name',
+			'emptyLabel' => 'Choose a colour',
+		]
+	)
+	// Conditional Logic: shown only for one dropdown choice. Its label is hidden (still
+	// read by screen readers); the placeholder says what it is for.
 	. $daf_field(
 		'Why large?',
 		[
-			'name'         => 'large_reason',
-			'type'         => 'text',
-			'visibleRules' => 'size = large',
+			'name'          => 'large_reason',
+			'type'          => 'text',
+			'visibleRules'  => 'size = large',
+			'labelPosition' => 'hidden',
+			'placeholder'   => 'Why large?',
 		]
 	)
 	. $daf_field(
@@ -136,13 +158,16 @@ $daf_fields = $daf_field(
 			'type'        => 'email',
 			'required'    => 'on',
 			'placeholder' => 'you@example.org',
-		]
+			'width'       => '50',
+		],
+		[ 'text' => 'We only use this to reply to you.' ] // A hint, below and grey by default.
 	)
 	. $daf_field(
 		'Call me back',
 		[
-			'name' => 'callback',
-			'type' => 'checkbox',
+			'name'  => 'callback',
+			'type'  => 'checkbox',
+			'width' => '50',
 		]
 	)
 	// Conditional Logic: required, but only while it is shown.
@@ -151,17 +176,28 @@ $daf_fields = $daf_field(
 		[
 			'name'         => 'phone',
 			'type'         => 'tel',
-			'required'     => 'on',
-			'visibleRules' => 'callback is checked',
+			'required'      => 'on',
+			'visibleRules'  => 'callback is checked',
+			'labelPosition' => 'left',
+			'placeholder'   => '01234 567890',
+		],
+		[
+			'text'     => 'A daytime number, please.',
+			'position' => 'above',
 		]
 	)
 	// Conditional Logic: greyed out until a category is chosen.
 	. $daf_field(
 		'Message',
 		[
-			'name'         => 'message',
-			'type'         => 'textarea',
-			'enabledRules' => 'category is not empty',
+			'name'          => 'message',
+			'type'          => 'textarea',
+			'enabledRules'  => 'category is not empty',
+			'labelPosition' => 'below',
+		],
+		[
+			'text'  => 'Choose a category first. Up to 10,000 characters.',
+			'color' => '#2e7d32', // A custom Hint Colour.
 		]
 	);
 

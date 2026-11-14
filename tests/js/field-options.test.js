@@ -12,12 +12,13 @@ const attrs = ( label, advanced ) => ( {
 // builder preview must read a field exactly as the front end does.
 describe( 'fieldFromAttrs', () => {
 	it( 'reads a JSON dropdown', () => {
-		expect( fieldFromAttrs( attrs( 'Category', { name: 'category', type: 'json', required: 'on', source: '/wp-json/x', fullwidth: 'off' } ) ) ).toMatchObject( {
+		expect( fieldFromAttrs( attrs( 'Category', { name: 'category', type: 'json', required: 'on', source: '/wp-json/x', width: '50', labelPosition: 'hidden' } ) ) ).toMatchObject( {
 			name: 'category',
 			label: 'Category',
 			type: 'json',
 			required: true,
-			fullwidth: false,
+			width: '50',
+			labelPosition: 'hidden',
 			source: '/wp-json/x',
 			valueKey: 'value',
 			labelKey: 'label',
@@ -25,7 +26,8 @@ describe( 'fieldFromAttrs', () => {
 	} );
 
 	it( 'derives the name from the label and defaults to a text field', () => {
-		expect( fieldFromAttrs( attrs( 'Email Address!', { type: 'file' } ) ) ).toMatchObject( { name: 'email_address', type: 'text', fullwidth: true } );
+		expect( fieldFromAttrs( attrs( 'Email Address!', { type: 'file' } ) ) ).toMatchObject( { name: 'email_address', type: 'text', width: '100', labelPosition: 'top' } );
+		expect( fieldFromAttrs( attrs( 'A', { width: '33', labelPosition: 'right' } ) ) ).toMatchObject( { width: '100', labelPosition: 'top' } );
 	} );
 
 	it( 'falls back to the module.json defaults, as Divi does on the server', () => {
@@ -33,8 +35,8 @@ describe( 'fieldFromAttrs', () => {
 			name: 'field',
 			label: 'Field',
 			type: 'text',
-			source: '/wp-json/wp/v2/categories',
-			emptyLabel: 'Choose an option',
+			source: '/wp-json/divi-active-form/v1/example-options',
+			emptyLabel: '',
 		} );
 		expect( parseStaticOptions( fieldFromAttrs( undefined ).options ).map( ( o ) => o.label ) ).toEqual( [ 'Small', 'Medium', 'Large' ] );
 	} );
@@ -68,7 +70,16 @@ describe( 'optionsQuery and emptyLabel', () => {
 	it( 'prefers the first-option text, then the placeholder', () => {
 		expect( emptyLabel( { emptyLabel: 'Choose', placeholder: 'p' } ) ).toBe( 'Choose' );
 		expect( emptyLabel( { emptyLabel: '', placeholder: 'p' } ) ).toBe( 'p' );
-		expect( emptyLabel( { emptyLabel: '', placeholder: '' } ) ).toBe( 'Select…' );
+		expect( emptyLabel( { emptyLabel: '', placeholder: '' } ) ).toBe( 'Choose an option' );
+	} );
+} );
+
+describe( 'Hint settings', () => {
+	it( 'reads the hint and its position, defaulting to below', () => {
+		const withHint = { ...attrs( 'Email', {} ), hint: { advanced: { text: { desktop: { value: ' Reply only ' } }, position: { desktop: { value: 'above' } } } } };
+
+		expect( fieldFromAttrs( withHint ) ).toMatchObject( { hint: 'Reply only', hintPosition: 'above' } );
+		expect( fieldFromAttrs( attrs( 'Email', {} ) ) ).toMatchObject( { hint: '', hintPosition: 'below' } );
 	} );
 } );
 

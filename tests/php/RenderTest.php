@@ -21,6 +21,26 @@ describe('FieldRenderer', function (): void {
             ->not->toContain('data-daf-empty');
     });
 
+    it('uses the placeholder as the first option of a dropdown when First Option Text is blank', function (): void {
+        $options = [ [ 'value' => 's', 'label' => 'Small' ] ];
+
+        expect(FieldRenderer::render(new FieldDefinition('size', 'Size', FieldType::Select, placeholder: 'Pick a size'), $options, 's'))
+            ->toContain('<option value="">Pick a size</option>')
+            ->and(FieldRenderer::render(new FieldDefinition('size', 'Size', FieldType::Json, placeholder: 'Pick one'), $options, 's'))
+            ->toContain('<option value="">Pick one</option>')
+            ->and(FieldRenderer::render(new FieldDefinition('size', 'Size', FieldType::Select, placeholder: 'Pick', emptyLabel: 'First'), $options, 's'))
+            ->toContain('<option value="">First</option>')
+            ->and(FieldRenderer::render(new FieldDefinition('size', 'Size', FieldType::Select), $options, 's'))
+            ->toContain('<option value="">Choose an option</option>');
+    });
+
+    it('shows the placeholder inside phone and paragraph fields', function (): void {
+        expect(FieldRenderer::render(new FieldDefinition('phone', 'Phone', FieldType::Tel, placeholder: '01234 567890'), [], 'p'))
+            ->toContain('placeholder="01234 567890"')
+            ->and(FieldRenderer::render(new FieldDefinition('note', 'Note', FieldType::Textarea, placeholder: 'Tell us'), [], 'n'))
+            ->toContain('placeholder="Tell us"');
+    });
+
     it('flags a JSON dropdown whose source returned nothing', function (): void {
         $html = FieldRenderer::render(new FieldDefinition('category', 'Category', FieldType::Json), [], 'g');
 
@@ -28,10 +48,11 @@ describe('FieldRenderer', function (): void {
     });
 
     it('renders text inputs by type, with placeholder and width', function (): void {
-        $html = FieldRenderer::render(new FieldDefinition('email', 'Email', FieldType::Email, placeholder: 'you@example.org', fullwidth: false), [], 'e');
+        $html = FieldRenderer::render(new FieldDefinition('email', 'Email', FieldType::Email, placeholder: 'you@example.org', width: '50'), [], 'e');
 
         expect($html)
-            ->toContain('daf-field--half')
+            ->toContain('daf-field--w50')
+            ->toContain('daf-field--label-top')
             ->toContain('type="email"')
             ->toContain('placeholder="you@example.org"')
             ->toContain('autocomplete="email"')
@@ -48,6 +69,66 @@ describe('FieldRenderer', function (): void {
         expect(FieldRenderer::render(new FieldDefinition('', '', FieldType::Text), [], 'x'))
             ->toContain('daf-field--unconfigured')
             ->not->toContain('<input');
+    });
+});
+
+describe('FieldRenderer label positions', function (): void {
+    it('marks the field with its label position, leaving the order of the markup to CSS', function (): void {
+        foreach ([ 'top', 'left', 'below' ] as $position) {
+            $html = FieldRenderer::render(new FieldDefinition('name', 'Name', FieldType::Text, labelPosition: $position), [], 'n');
+
+            expect($html)
+                ->toContain('daf-field--label-' . $position)
+                ->toContain('<label class="daf-field__label" for="n">Name</label>');
+        }
+    });
+
+    it('keeps a hidden label for screen readers', function (): void {
+        $html = FieldRenderer::render(new FieldDefinition('name', 'Name', FieldType::Text, true, 'Your name', labelPosition: 'hidden'), [], 'n');
+
+        expect($html)
+            ->toContain('daf-field--label-hidden')
+            ->toContain('<label class="daf-field__label daf-screen-reader-text" for="n">Name')
+            ->toContain('placeholder="Your name"');
+    });
+
+    it('hides a checkbox\'s text the same way', function (): void {
+        expect(FieldRenderer::render(new FieldDefinition('agree', 'I agree', FieldType::Checkbox, labelPosition: 'hidden'), [], 'a'))
+            ->toContain('<span class="daf-screen-reader-text">I agree</span>');
+    });
+});
+
+describe('FieldRenderer hints', function (): void {
+    it('puts the hint under the input by default and links it for screen readers', function (): void {
+        $html = FieldRenderer::render(new FieldDefinition('email', 'Email', FieldType::Email, hint: 'We only use this to reply.'), [], 'e');
+
+        expect($html)
+            ->toContain('aria-describedby="e-error e-hint"')
+            ->toMatch('/<input[^>]*>\s*<p class="daf-field__hint daf-field__hint--below" id="e-hint">We only use this to reply\.<\/p>/');
+    });
+
+    it('puts the hint between the label and the input when it is above', function (): void {
+        $html = FieldRenderer::render(new FieldDefinition('phone', 'Phone', FieldType::Tel, hint: 'Daytime', hintPosition: 'above'), [], 'p');
+
+        expect($html)
+            ->toContain('daf-field--hint-above')
+            ->toMatch('/<\/label><p class="daf-field__hint daf-field__hint--above" id="p-hint">Daytime<\/p><input/');
+    });
+
+    it('escapes the hint and keeps its line breaks', function (): void {
+        expect(FieldRenderer::render(new FieldDefinition('n', 'N', FieldType::Text, hint: "<b>One</b>\nTwo"), [], 'n'))
+            ->toContain('&lt;b&gt;One&lt;/b&gt;<br>' . "\n" . 'Two');
+    });
+
+    it('adds no hint markup, and no extra describedby, when there is no hint', function (): void {
+        expect(FieldRenderer::render(new FieldDefinition('n', 'N', FieldType::Text), [], 'n'))
+            ->not->toContain('daf-field__hint')
+            ->toContain('aria-describedby="n-error"');
+    });
+
+    it('places a checkbox\'s hint above or below the box', function (): void {
+        expect(FieldRenderer::render(new FieldDefinition('a', 'Agree', FieldType::Checkbox, hint: 'Required by law', hintPosition: 'above'), [], 'a'))
+            ->toMatch('/daf-field__hint--above" id="a-hint">Required by law<\/p><label class="daf-field__checkbox"/');
     });
 });
 

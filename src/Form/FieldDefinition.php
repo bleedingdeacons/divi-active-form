@@ -22,6 +22,15 @@ if (! defined('ABSPATH')) {
 
 final class FieldDefinition
 {
+    /** Width as a percentage of the form's row: a quarter, a half, three quarters or all of it. */
+    public const WIDTHS = [ '25', '50', '75', '100' ];
+
+    /** Where the label sits. `hidden` keeps it for screen readers only. */
+    public const LABEL_POSITIONS = [ 'top', 'left', 'below', 'hidden' ];
+
+    /** Where the hint sits relative to the input. */
+    public const HINT_POSITIONS = [ 'below', 'above' ];
+
     /**
      * @param string $name        Meta / ACF field name the value is saved under; also the input name.
      * @param string $options     Select only: one option per line, `value|label` or just `label`.
@@ -29,7 +38,11 @@ final class FieldDefinition
      * @param string $itemsPath   JSON dropdown only: dot path to the list inside the JSON, blank for the top level.
      * @param string $valueKey    JSON dropdown only: dot path of each item's value.
      * @param string $labelKey    JSON dropdown only: dot path of each item's label.
+     * @param string $width       One of WIDTHS.
      * @param string $emptyLabel  Dropdowns: text of the leading "nothing chosen" option.
+     * @param string $labelPosition One of LABEL_POSITIONS.
+     * @param string $hint        Helper text shown with the field; blank for none.
+     * @param string $hintPosition One of HINT_POSITIONS.
      * @param Conditions $visibleWhen When the field is shown; hidden fields are not sent or saved.
      * @param Conditions $enabledWhen When the field can be filled in; disabled fields are not sent or saved.
      */
@@ -39,13 +52,16 @@ final class FieldDefinition
         public readonly FieldType $type,
         public readonly bool $required = false,
         public readonly string $placeholder = '',
-        public readonly bool $fullwidth = true,
+        public readonly string $width = '100',
         public readonly string $options = '',
         public readonly string $source = '',
         public readonly string $itemsPath = '',
         public readonly string $valueKey = 'value',
         public readonly string $labelKey = 'label',
         public readonly string $emptyLabel = '',
+        public readonly string $labelPosition = 'top',
+        public readonly string $hint = '',
+        public readonly string $hintPosition = 'below',
         public readonly Conditions $visibleWhen = new Conditions(),
         public readonly Conditions $enabledWhen = new Conditions(),
     ) {
@@ -69,13 +85,16 @@ final class FieldDefinition
             type: FieldType::parse($setting('type')),
             required: 'on' === $setting('required'),
             placeholder: $setting('placeholder'),
-            fullwidth: 'off' !== $setting('fullwidth'),
+            width: self::width($setting('width')),
             options: Attrs::string(Attrs::desktop($attrs, 'fieldItem.advanced.options')),
             source: $setting('source'),
             itemsPath: $setting('itemsPath'),
             valueKey: '' !== $setting('valueKey') ? $setting('valueKey') : 'value',
             labelKey: '' !== $setting('labelKey') ? $setting('labelKey') : 'label',
             emptyLabel: $setting('emptyLabel'),
+            labelPosition: self::labelPosition($setting('labelPosition')),
+            hint: trim(Attrs::string(Attrs::desktop($attrs, 'hint.advanced.text'))),
+            hintPosition: self::hintPosition(Attrs::string(Attrs::desktop($attrs, 'hint.advanced.position'))),
             visibleWhen: Conditions::parse(Attrs::string(Attrs::desktop($attrs, 'fieldItem.advanced.visibleRules')), $setting('visibleMatch')),
             enabledWhen: Conditions::parse(Attrs::string(Attrs::desktop($attrs, 'fieldItem.advanced.enabledRules')), $setting('enabledMatch')),
         );
@@ -90,6 +109,30 @@ final class FieldDefinition
     public function isActive(array $values): bool
     {
         return $this->visibleWhen->passes($values) && $this->enabledWhen->passes($values);
+    }
+
+    /**
+     * A width setting, or full width for anything unrecognised.
+     */
+    public static function width(string $value): string
+    {
+        return in_array($value, self::WIDTHS, true) ? $value : '100';
+    }
+
+    /**
+     * A label position setting, or `top` for anything unrecognised.
+     */
+    public static function labelPosition(string $value): string
+    {
+        return in_array($value, self::LABEL_POSITIONS, true) ? $value : 'top';
+    }
+
+    /**
+     * A hint position setting, or `below` for anything unrecognised.
+     */
+    public static function hintPosition(string $value): string
+    {
+        return in_array($value, self::HINT_POSITIONS, true) ? $value : 'below';
     }
 
     /**
@@ -117,13 +160,16 @@ final class FieldDefinition
             'type'        => $this->type->value,
             'required'    => $this->required,
             'placeholder' => $this->placeholder,
-            'fullwidth'   => $this->fullwidth,
+            'width'       => $this->width,
             'options'     => $this->options,
             'source'      => $this->source,
             'itemsPath'   => $this->itemsPath,
             'valueKey'    => $this->valueKey,
             'labelKey'    => $this->labelKey,
             'emptyLabel'  => $this->emptyLabel,
+            'labelPosition' => $this->labelPosition,
+            'hint'        => $this->hint,
+            'hintPosition' => $this->hintPosition,
             'visibleWhen' => $this->visibleWhen->toArray(),
             'enabledWhen' => $this->enabledWhen->toArray(),
         ];
@@ -142,13 +188,16 @@ final class FieldDefinition
             type: FieldType::parse($data['type'] ?? null),
             required: true === ( $data['required'] ?? false ),
             placeholder: $string('placeholder'),
-            fullwidth: false !== ( $data['fullwidth'] ?? true ),
+            width: self::width($string('width')),
             options: $string('options'),
             source: $string('source'),
             itemsPath: $string('itemsPath'),
             valueKey: $string('valueKey', 'value'),
             labelKey: $string('labelKey', 'label'),
             emptyLabel: $string('emptyLabel'),
+            labelPosition: self::labelPosition($string('labelPosition')),
+            hint: $string('hint'),
+            hintPosition: self::hintPosition($string('hintPosition')),
             visibleWhen: Conditions::fromArray($data['visibleWhen'] ?? null),
             enabledWhen: Conditions::fromArray($data['enabledWhen'] ?? null),
         );

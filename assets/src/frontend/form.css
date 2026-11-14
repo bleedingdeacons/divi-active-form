@@ -15,12 +15,32 @@
 	min-width: 0;
 }
 
-.daf-form__fields > .daf-field-module--half {
+/* Widths: fractions of the row, less their share of the 4% gaps, so a quarter and three
+   quarters (or two halves, or four quarters) fill a row exactly. */
+.daf-form__fields > .daf-field-module--w75 {
+	flex-basis: 74%;
+}
+
+.daf-form__fields > .daf-field-module--w50 {
 	flex-basis: 48%;
 }
 
+.daf-form__fields > .daf-field-module--w25 {
+	flex-basis: 22%;
+}
+
+/* Tablets: quarters become halves, so a field is never too narrow to use. */
+@media (max-width: 980px) {
+	.daf-form__fields > .daf-field-module--w25 {
+		flex-basis: 48%;
+	}
+}
+
+/* Phones: every field takes the whole row. */
 @media (max-width: 767px) {
-	.daf-form__fields > .daf-field-module--half {
+	.daf-form__fields > .daf-field-module--w25,
+	.daf-form__fields > .daf-field-module--w50,
+	.daf-form__fields > .daf-field-module--w75 {
 		flex-basis: 100%;
 	}
 }
@@ -29,6 +49,94 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0.35em;
+}
+
+/* Hints: grey unless the field's Hint Colour says otherwise. #767676 keeps 4.5:1
+   contrast on white. Themes pad paragraphs, so the spacing is reset here. */
+.daf-field .daf-field__hint {
+	margin: 0;
+	padding: 0;
+	font-size: 0.875em;
+	line-height: 1.4;
+	color: #767676;
+}
+
+/* Label positions. Top is the markup's own order. */
+.daf-field--label-below .daf-field__label,
+.daf-field--label-below .daf-field__hint--below {
+	order: 2;
+}
+
+.daf-field--label-below .daf-field__error,
+.daf-field--label-below .daf-field__note {
+	order: 3;
+}
+
+.daf-field--label-left:not(.daf-field--checkbox) {
+	display: grid;
+	/* The label takes only the room it needs (a long one wraps at 40% of the row), so the
+	   input starts right after it rather than at a fixed column. */
+	grid-template-columns: fit-content(40%) minmax(0, 1fr);
+	column-gap: 1em;
+	row-gap: 0.35em;
+	align-items: center;
+}
+
+.daf-field--label-left .daf-field__label {
+	grid-column: 1;
+}
+
+/* A hint above takes the first row, so the label moves down level with its input. */
+.daf-field--label-left.daf-field--hint-above .daf-field__hint {
+	grid-row: 1;
+}
+
+.daf-field--label-left.daf-field--hint-above .daf-field__label {
+	grid-row: 2;
+}
+
+.daf-field--label-left > :not(.daf-field__label) {
+	grid-column: 2;
+}
+
+.daf-field--label-left.daf-field--textarea {
+	align-items: start;
+}
+
+.daf-field--label-left.daf-field--textarea .daf-field__label {
+	padding-top: 0.7em;
+}
+
+/* A checkbox's label sits beside its box; "left" puts the text before the box. */
+.daf-field--checkbox.daf-field--label-left .daf-field__checkbox {
+	flex-direction: row-reverse;
+	justify-content: flex-end;
+}
+
+@media (max-width: 767px) {
+	.daf-field--label-left:not(.daf-field--checkbox) {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.daf-field--label-left.daf-field--textarea .daf-field__label {
+		padding-top: 0;
+	}
+}
+
+/* Hidden labels stay readable by screen readers. */
+.daf-screen-reader-text {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
 }
 
 .daf-field__label {
@@ -129,6 +237,11 @@
 .daf-field__note {
 	font-size: 0.85em;
 	opacity: 0.75;
+}
+
+/* Builder only: a field's Conditional Logic, in words, under its input. */
+.daf-field__note--conditions {
+	font-style: italic;
 }
 
 /* Conditional Logic: form-core.js sets these as values change. */

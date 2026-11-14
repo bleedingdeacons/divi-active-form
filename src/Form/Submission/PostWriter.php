@@ -10,10 +10,10 @@
  * Two actions fire once everything is saved:
  *
  *   divi_active_form/after_insert_post ( $formId, $postId, $values )
- *   df_after_insert_post ( $formId, $postId )   only when the form turns it on
+ *   daf_after_insert_post ( $formId, $postId )  only when the form turns it on
  *
- * The second has Divi Form Builder's name and arguments, so code written against Divi
- * Form Builder's after-insert hook works with this form unchanged.
+ * The second is a shorter form of the first, with just the form ID and post ID, for
+ * listeners that need no more.
  *
  * @package DiviActiveForm
  */
@@ -76,8 +76,7 @@ final class PostWriter
         do_action('divi_active_form/after_insert_post', $schema->formId, $postId, $values);
 
         if ($schema->fireLegacyHook) {
-            // Divi Form Builder's hook, with its arguments, for code written against it.
-            do_action('df_after_insert_post', $schema->formId, $postId);
+            do_action('daf_after_insert_post', $schema->formId, $postId);
         }
 
         return $postId;

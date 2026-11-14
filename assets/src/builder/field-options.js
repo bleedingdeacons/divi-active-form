@@ -6,7 +6,7 @@
 import metadata from '../../../modules-json/form-field/module.json';
 
 // What Divi merges in on the server for any setting the editor has not changed.
-const DEFAULTS = { fieldItem: metadata.attributes.fieldItem.default };
+const DEFAULTS = { fieldItem: metadata.attributes.fieldItem.default, hint: metadata.attributes.hint.default };
 
 const desktop = ( attrs, path ) => {
 	let value = attrs;
@@ -24,6 +24,8 @@ const text = ( value ) => ( typeof value === 'string' || typeof value === 'numbe
 const stripTags = ( html ) => html.replace( /<[^>]*>/g, '' );
 
 export const TYPES = [ 'text', 'email', 'tel', 'textarea', 'select', 'json', 'checkbox' ];
+export const WIDTHS = [ '25', '50', '75', '100' ];
+export const LABEL_POSITIONS = [ 'top', 'left', 'below', 'hidden' ];
 
 /** Same rules as FieldDefinition::sanitizeName(). */
 export function sanitizeName( raw ) {
@@ -46,7 +48,10 @@ export function fieldFromAttrs( attrs ) {
 		type,
 		required: setting( 'required' ) === 'on',
 		placeholder: setting( 'placeholder' ),
-		fullwidth: setting( 'fullwidth' ) !== 'off',
+		width: WIDTHS.includes( setting( 'width' ) ) ? setting( 'width' ) : '100',
+		labelPosition: LABEL_POSITIONS.includes( setting( 'labelPosition' ) ) ? setting( 'labelPosition' ) : 'top',
+		hint: text( read( 'hint.advanced.text' ) ),
+		hintPosition: text( read( 'hint.advanced.position' ) ) === 'above' ? 'above' : 'below',
 		options: typeof read( 'fieldItem.advanced.options' ) === 'string' ? read( 'fieldItem.advanced.options' ) : '',
 		source: setting( 'source' ),
 		itemsPath: setting( 'itemsPath' ),
@@ -106,5 +111,5 @@ export function optionsQuery( field ) {
 }
 
 export function emptyLabel( field ) {
-	return field.emptyLabel || field.placeholder || 'Select…';
+	return field.emptyLabel || field.placeholder || 'Choose an option';
 }

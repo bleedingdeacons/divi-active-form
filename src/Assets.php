@@ -69,7 +69,7 @@ final class Assets
                 'version' => self::version('assets/build/builder.js'),
                 'script'  => [
                     'src'                => DIVI_ACTIVE_FORM_URL . 'assets/build/builder.js',
-                    'deps'               => [ 'divi-module-library', 'divi-module', 'divi-vendor-wp-hooks' ],
+                    'deps'               => [ 'divi-module-library', 'divi-module', 'divi-field-library', 'divi-module-utils', 'divi-data', 'divi-vendor-wp-hooks' ],
                     'enqueue_top_window' => false,
                     'enqueue_app_window' => true,
                     'data_app_window'    => [

@@ -51,16 +51,6 @@
               "value": "off"
             }
           },
-          "fullwidth": {
-            "desktop": {
-              "value": "on"
-            }
-          },
-          "emptyLabel": {
-            "desktop": {
-              "value": "Choose an option"
-            }
-          },
           "options": {
             "desktop": {
               "value": "small|Small\nmedium|Medium\nlarge|Large"
@@ -68,7 +58,7 @@
           },
           "source": {
             "desktop": {
-              "value": "/wp-json/wp/v2/categories"
+              "value": "/wp-json/divi-active-form/v1/example-options"
             }
           },
           "visibleMatch": {
@@ -79,6 +69,16 @@
           "enabledMatch": {
             "desktop": {
               "value": "all"
+            }
+          },
+          "width": {
+            "desktop": {
+              "value": "100"
+            }
+          },
+          "labelPosition": {
+            "desktop": {
+              "value": "top"
             }
           }
         }
@@ -200,7 +200,7 @@
               "groupSlug": "contentField",
               "attrName": "fieldItem.advanced.placeholder",
               "label": "Placeholder",
-              "description": "Hint shown inside an empty text field.",
+              "description": "Hint shown in the empty field. Text, Email, Phone and Paragraph fields show it greyed inside the box; a Dropdown or JSON Dropdown shows it as its first, 'nothing chosen' option unless First Option Text is set. A Checkbox has no placeholder.",
               "priority": 40,
               "render": true,
               "features": {
@@ -215,34 +215,13 @@
               }
             }
           },
-          "fullwidth": {
-            "groupType": "group-item",
-            "item": {
-              "groupSlug": "contentField",
-              "attrName": "fieldItem.advanced.fullwidth",
-              "label": "Full Width",
-              "description": "Off puts this field in a half-width column beside the next half-width field.",
-              "priority": 50,
-              "render": true,
-              "features": {
-                "hover": false,
-                "sticky": false,
-                "responsive": false,
-                "preset": "content"
-              },
-              "component": {
-                "type": "field",
-                "name": "divi/toggle"
-              }
-            }
-          },
           "emptyLabel": {
             "groupType": "group-item",
             "item": {
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.emptyLabel",
               "label": "First Option Text",
-              "description": "Dropdowns: the leading 'nothing chosen' option, e.g. Choose an option.",
+              "description": "Dropdowns: the leading 'nothing chosen' option, e.g. Choose a size. Leave blank to use the Placeholder, or 'Choose an option' when that is blank too.",
               "priority": 10,
               "render": true,
               "features": {
@@ -284,7 +263,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.source",
               "label": "JSON Source",
-              "description": "JSON Dropdown only: a URL or site path returning JSON. Example: /wp-json/wp/v2/categories lists this site's post categories; any WordPress REST collection works the same way.",
+              "description": "JSON Dropdown only: a URL or site path returning JSON. The default, /wp-json/divi-active-form/v1/example-options, is a sample list; add ?shape=nested for a nested version (Items Path data.items, Value Key code, Label Key name). /wp-json/wp/v2/categories lists this site's post categories.",
               "priority": 30,
               "render": true,
               "features": {
@@ -368,7 +347,7 @@
               "groupSlug": "contentConditions",
               "attrName": "fieldItem.advanced.visibleRules",
               "label": "Show When",
-              "description": "Show this field only when these rules hold; otherwise it is hidden, not required, and not saved. One rule per line, naming another field by its Field Name: size = large, size != small, email is not empty, email is empty, agree is checked, agree is not checked. Values ignore case. Leave blank for always.",
+              "description": "Show this field only when these rules hold; otherwise it is hidden, not required, and not saved. Add a rule, pick another field in this form, a condition and (for equals / does not equal) a value. No rules means always.",
               "priority": 10,
               "render": true,
               "features": {
@@ -379,7 +358,7 @@
               },
               "component": {
                 "type": "field",
-                "name": "divi/textarea"
+                "name": "divi-active-form/condition-rules"
               }
             }
           },
@@ -420,7 +399,7 @@
               "groupSlug": "contentConditions",
               "attrName": "fieldItem.advanced.enabledRules",
               "label": "Enable When",
-              "description": "Let visitors fill in this field only when these rules hold; otherwise it is shown greyed out, not required, and not saved. One rule per line, naming another field by its Field Name: size = large, size != small, email is not empty, email is empty, agree is checked, agree is not checked. Values ignore case. Leave blank for always.",
+              "description": "Let visitors fill in this field only when these rules hold; otherwise it is shown greyed out, not required, and not saved. Add a rule, pick another field in this form, a condition and (for equals / does not equal) a value. No rules means always.",
               "priority": 30,
               "render": true,
               "features": {
@@ -431,7 +410,7 @@
               },
               "component": {
                 "type": "field",
-                "name": "divi/textarea"
+                "name": "divi-active-form/condition-rules"
               }
             }
           },
@@ -465,12 +444,182 @@
                 }
               }
             }
+          },
+          "labelPosition": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentField",
+              "attrName": "fieldItem.advanced.labelPosition",
+              "label": "Label Position",
+              "description": "Where the label sits: above the field, to its left, below it, or hidden. A hidden label is still read out by screen readers, so give the field a Placeholder to show what it is for.",
+              "priority": 45,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi/select",
+                "props": {
+                  "options": {
+                    "top": {
+                      "label": "Top"
+                    },
+                    "left": {
+                      "label": "Left"
+                    },
+                    "below": {
+                      "label": "Below"
+                    },
+                    "hidden": {
+                      "label": "Hidden"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "width": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentField",
+              "attrName": "fieldItem.advanced.width",
+              "label": "Width",
+              "description": "How much of the form row the field takes. Narrower fields sit side by side, e.g. a half next to a half, or three quarters next to a quarter. On phones every field is full width.",
+              "priority": 50,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi/select",
+                "props": {
+                  "options": {
+                    "100": {
+                      "label": "Full"
+                    },
+                    "75": {
+                      "label": "Three Quarters"
+                    },
+                    "50": {
+                      "label": "Half"
+                    },
+                    "25": {
+                      "label": "Quarter"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "hint": {
+      "type": "object",
+      "selector": "{{selector}} .daf-field__hint",
+      "default": {
+        "advanced": {
+          "position": {
+            "desktop": {
+              "value": "below"
+            }
+          }
+        }
+      },
+      "settings": {
+        "advanced": {
+          "text": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentHint",
+              "attrName": "hint.advanced.text",
+              "label": "Hint",
+              "description": "Helper text shown with the field, e.g. \"We only use this to reply to you.\" Screen readers read it with the field. Leave blank for none.",
+              "priority": 10,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi/textarea"
+              }
+            }
+          },
+          "position": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentHint",
+              "attrName": "hint.advanced.position",
+              "label": "Hint Position",
+              "description": "Show the hint above the field or under it.",
+              "priority": 20,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi/select",
+                "props": {
+                  "options": {
+                    "below": {
+                      "label": "Below"
+                    },
+                    "above": {
+                      "label": "Above"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "color": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentHint",
+              "attrName": "hint.advanced.color",
+              "label": "Hint Colour",
+              "description": "Colour of the hint text. Leave unset for grey.",
+              "priority": 30,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi/color-picker"
+              }
+            }
           }
         }
       }
     }
   },
-  "customCssFields": {},
+  "customCssFields": {
+    "hint": {
+      "label": "Hint",
+      "subName": "hint",
+      "selectorSuffix": " .daf-field__hint"
+    }
+  },
   "settings": {
     "content": "auto",
     "design": "auto",
@@ -506,6 +655,17 @@
           "name": "divi/composite",
           "props": {
             "groupLabel": "Conditional Logic"
+          }
+        }
+      },
+      "contentHint": {
+        "panel": "content",
+        "priority": 15,
+        "groupName": "contentHint",
+        "component": {
+          "name": "divi/composite",
+          "props": {
+            "groupLabel": "Hint"
           }
         }
       }

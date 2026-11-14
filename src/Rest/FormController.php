@@ -4,6 +4,9 @@
  * REST routes, under divi-active-form/v1:
  *
  *   POST /submit    a Register Form submission (public; what form.js sends)
+ *   GET  /example-options
+ *                   a sample JSON source for dropdowns (public; ?shape=nested for the
+ *                   nested form). See ExampleOptions.
  *   GET  /options   a JSON source's options as the form would show them (editors only;
  *                   the Visual Builder's preview)
  *
@@ -18,6 +21,7 @@ namespace DiviActiveForm\Rest;
 
 use DiviActiveForm\Form\FieldDefinition;
 use DiviActiveForm\Form\FieldType;
+use DiviActiveForm\Form\Options\ExampleOptions;
 use DiviActiveForm\Form\Options\FieldOptions;
 use DiviActiveForm\Form\Submission\SubmissionHandler;
 use DiviActiveForm\Form\Submission\SubmissionResult;
@@ -48,6 +52,22 @@ final class FormController
 
         register_rest_route(
             self::NAMESPACE,
+            '/example-options',
+            [
+                'methods'             => 'GET',
+                'callback'            => [ $this, 'exampleOptions' ],
+                'permission_callback' => '__return_true',
+                'args'                => [
+                    'shape' => [
+                        'type' => 'string',
+                        'enum' => [ 'flat', 'nested' ],
+                    ],
+                ],
+            ]
+        );
+
+        register_rest_route(
+            self::NAMESPACE,
             '/options',
             [
                 'methods'             => 'GET',
@@ -71,6 +91,11 @@ final class FormController
         $result = SubmissionHandler::create()->handle(Attrs::map($request->get_params()), self::clientKey());
 
         return new WP_REST_Response($result->toArray(), $result->status);
+    }
+
+    public function exampleOptions(WP_REST_Request $request): WP_REST_Response
+    {
+        return new WP_REST_Response(ExampleOptions::shaped(Attrs::string($request->get_param('shape'))), 200);
     }
 
     public function options(WP_REST_Request $request): WP_REST_Response

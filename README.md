@@ -29,11 +29,21 @@ are saved through `update_field()`.
    | Post Type | `post` | Any registered post type |
    | Post Status | Pending Review | Published, Pending Review, Draft or Private |
    | Post Title | automatic | `{field_name}` placeholders, e.g. `Submission from {email}` |
-   | Fire Divi Form Builder Hook | off | Also fire `df_after_insert_post` (see below) |
+   | Fire daf_after_insert_post | off | Also fire `daf_after_insert_post` (see below) |
 
 2. Add **Form Fields**. Each one's **Field Name** is the post meta (or ACF field) the value
-   is saved under; leave it blank to derive it from the label. Turn **Full Width** off to
-   put two fields side by side.
+   is saved under; leave it blank to derive it from the label.
+   - **Placeholder**: greyed hint text inside Text, Email, Phone and Paragraph
+     fields. A Dropdown or JSON Dropdown shows it as its first, "nothing chosen"
+     option unless First Option Text is set. A Checkbox has none.
+   - **Hint** (its own group): helper text shown **Below** the input (the default)
+     or **Above** it, in grey unless you pick a **Hint Colour**. It is linked to the
+     input with `aria-describedby`, so screen readers read it with the field.
+   - **Label Position**: Top (the default), Left, Below, or Hidden. A hidden label is
+     still read by screen readers, so give the field a Placeholder.
+   - **Width**: Full (the default), Three Quarters, Half or Quarter of the row.
+     Narrower fields sit side by side. On tablets quarters widen to halves, and on
+     phones every field is full width.
 
 ### Dropdown Options
 
@@ -42,26 +52,49 @@ switching its Type to a dropdown shows choices straight away. Replace them with 
 
 | Setting | Example (the default) | |
 |---|---|---|
-| First Option Text | `Choose an option` | The leading "nothing chosen" line |
+| First Option Text | *(blank: the Placeholder, else `Choose an option`)* | The leading "nothing chosen" line |
 | Options | `small\|Small` · `medium\|Medium` · `large\|Large`, one per line | **Dropdown**: `value\|label`, or just a label |
-| JSON Source | `/wp-json/wp/v2/categories` | **JSON Dropdown**: this site's post categories |
+| JSON Source | `/wp-json/divi-active-form/v1/example-options` | **JSON Dropdown**: a sample list (below) |
 | Items Path | *(blank)* | Only when the list is nested, e.g. `data.items` |
 | Value Key | *(blank: tries `value`, `id`, `ID`, `slug`)* | e.g. `id` |
 | Label Key | *(blank: tries `label`, `name`, `title.rendered`, `title`)* | e.g. `name` |
 
-The categories example needs no plugin or setup: any WordPress REST collection works
-the same way, e.g. `/wp-json/wp/v2/tags`, `/wp-json/wp/v2/pages?per_page=100`
-(labels from `title.rendered`), or a custom post type's REST route.
+#### The example endpoint
+
+`GET /wp-json/divi-active-form/v1/example-options` is a public sample source that works
+on any site. It also shows how the JSON Dropdown settings read different shapes:
+
+| URL | Returns | Settings |
+|---|---|---|
+| `/wp-json/divi-active-form/v1/example-options` | `[{"value": "red", "label": "Red"}, …]` | none needed |
+| `…/example-options?shape=nested` | `{"data": {"items": [{"code": "red", "name": "Red"}, …]}}` | Items Path `data.items`, Value Key `code`, Label Key `name` |
+
+Change its list with the `divi_active_form/example_options` filter (value => label).
+
+Real data works the same way. Any WordPress REST collection can be a source, e.g.
+`/wp-json/wp/v2/categories` (no keys needed), `/wp-json/wp/v2/tags`,
+`/wp-json/wp/v2/pages?per_page=100` (labels from `title.rendered`), or a custom post
+type's REST route.
 
 ### Conditional Logic
 
-Each Form Field has a **Conditional Logic** group with two sets of rules:
+Each Form Field has a **Conditional Logic** group with two sets of rules, each built
+in a visual editor:
 
 - **Show When**: when the rules fail, the field is hidden.
 - **Enable When**: when the rules fail, the field is shown greyed out.
 
-Either way, a field whose rules fail is not sent, not required and not saved. Write
-one rule per line, naming another field by its **Field Name**:
+Either way, a field whose rules fail is not sent, not required and not saved.
+
+In the editor, **+ Add rule** adds a row. Pick another field in this form, then a
+condition: *equals*, *does not equal*, *is empty* or *is not empty*. A checkbox has
+*is checked* / *is not checked* instead. Where a comparison needs a value, a Dropdown
+or JSON Dropdown field offers its own options to choose from; other fields take typed
+text. **×** removes a rule.
+
+**Edit as text** shows the same rules as text, one per line, naming fields by their
+**Field Name**. The editor reads and writes exactly this format, and a line it cannot
+read is kept as typed:
 
 ```text
 size = large            equals (ignoring case)
@@ -124,7 +157,7 @@ site's salts. On submit:
    Names can never begin with `_`.
 5. The post is created and each value saved, then
    `divi_active_form/after_insert_post ($formId, $postId, $values)` fires, and
-   `df_after_insert_post ($formId, $postId)` too when the form turns it on.
+   `daf_after_insert_post ($formId, $postId)` too when the form turns it on.
 
 With JavaScript, `assets/build/form.js` posts to `POST /wp-json/divi-active-form/v1/submit`
 and shows errors beside each field. Without it, the form posts to `admin-post.php` and
@@ -138,7 +171,7 @@ The signed schema, the honeypot and the rate limit take its place.
 | Hook | Type | Purpose |
 |---|---|---|
 | `divi_active_form/after_insert_post` | action | After a submission is saved: `$formId, $postId, $values` |
-| `df_after_insert_post` | action | The same moment, with Divi Form Builder's arguments, for code written against that plugin. Only when the form's Fire Divi Form Builder Hook is on |
+| `daf_after_insert_post` | action | The same moment, with just `$formId, $postId`. Only when the form's Fire daf_after_insert_post setting is on |
 | `divi_active_form/field_options` | filter | A dropdown's options, after normalising: `$options, FieldDefinition $field` |
 | `divi_active_form/json_cache_ttl` | filter | Seconds to cache JSON fetched over HTTP (default 300; 0 = off) |
 | `divi_active_form/rate_limit` | filter | Submissions per IP per ten minutes (default 10; 0 = off) |
@@ -149,9 +182,11 @@ Kill switch: `define( 'DIVI_ACTIVE_FORM_KILL', true );` in `wp-config.php`.
 ## Development
 
 The dev site is the Local site **aa-bristol-future** (Divi 5 and ACF). Its demo form
-has a categories JSON Dropdown and a Size dropdown, plus a field shown only for
-Large, a phone number shown only when "Call me back" is ticked, and a message
-enabled only once a category is chosen. It saves submissions as draft posts.
+has a three-quarter categories JSON Dropdown beside a quarter Size dropdown, and a
+half-width email beside a half-width "Call me back". Its conditional fields are
+"Why large?" (label hidden), shown only for Large; a phone number (label left), shown
+only when "Call me back" is ticked; and a message (label below), enabled once a
+category is chosen. It saves submissions as draft posts.
 
 ```bash
 pwsh bin/dev.ps1 setup     # build, junction into the site, activate, seed categories + demo page

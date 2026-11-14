@@ -33,10 +33,13 @@ final class FieldRenderer
 
         $id      = sanitize_html_class($idBase);
         $errorId = $id . '-error';
+        $hintId  = $id . '-hint';
         $classes = [
             'daf-field',
             'daf-field--' . $field->type->value,
-            $field->fullwidth ? 'daf-field--full' : 'daf-field--half',
+            'daf-field--w' . $field->width,
+            'daf-field--label-' . $field->labelPosition,
+            '' !== $field->hint ? 'daf-field--hint-' . $field->hintPosition : '',
             $field->required ? 'daf-field--required' : '',
         ];
 
@@ -44,19 +47,24 @@ final class FieldRenderer
             'id="%1$s" name="%2$s" aria-describedby="%3$s"%4$s',
             esc_attr($id),
             esc_attr($field->name),
-            esc_attr($errorId),
+            esc_attr('' !== $field->hint ? $errorId . ' ' . $hintId : $errorId),
             $field->required ? ' required aria-required="true"' : ''
         );
 
+        $hint  = self::hint($field, $hintId);
+        $above = 'above' === $field->hintPosition ? $hint : '';
+        $below = 'above' === $field->hintPosition ? '' : $hint;
+
         if (FieldType::Checkbox === $field->type) {
-            $control = sprintf(
-                '<label class="daf-field__checkbox" for="%1$s"><input type="checkbox" value="1" %2$s> <span>%3$s</span></label>',
+            $control = $above . sprintf(
+                '<label class="daf-field__checkbox" for="%1$s"><input type="checkbox" value="1" %2$s> <span%4$s>%3$s</span></label>',
                 esc_attr($id),
                 $common,
-                esc_html($field->label)
-            );
+                esc_html($field->label),
+                'hidden' === $field->labelPosition ? ' class="daf-screen-reader-text"' : ''
+            ) . $below;
         } else {
-            $control = self::label($field, $id) . self::control($field, $options, $common);
+            $control = self::label($field, $id) . $above . self::control($field, $options, $common) . $below;
         }
 
         return sprintf(
@@ -86,17 +94,37 @@ final class FieldRenderer
         return $attrs;
     }
 
+    /**
+     * The hint paragraph: grey by default (form.css), or the Hint Colour, which Divi
+     * prints for this field's order class.
+     */
+    private static function hint(FieldDefinition $field, string $hintId): string
+    {
+        if ('' === $field->hint) {
+            return '';
+        }
+
+        return sprintf(
+            '<p class="daf-field__hint daf-field__hint--%1$s" id="%2$s">%3$s</p>',
+            esc_attr($field->hintPosition),
+            esc_attr($hintId),
+            nl2br(esc_html($field->hint), false)
+        );
+    }
+
     private static function label(FieldDefinition $field, string $id): string
     {
         if ('' === $field->label) {
             return '';
         }
 
+        // A hidden label stays in the markup for screen readers; CSS moves the others.
         return sprintf(
-            '<label class="daf-field__label" for="%1$s">%2$s%3$s</label>',
+            '<label class="daf-field__label%4$s" for="%1$s">%2$s%3$s</label>',
             esc_attr($id),
             esc_html($field->label),
-            $field->required ? ' <span class="daf-field__required" aria-hidden="true">*</span>' : ''
+            $field->required ? ' <span class="daf-field__required" aria-hidden="true">*</span>' : '',
+            'hidden' === $field->labelPosition ? ' daf-screen-reader-text' : ''
         );
     }
 
@@ -125,9 +153,11 @@ final class FieldRenderer
      */
     private static function select(FieldDefinition $field, array $options, string $common): string
     {
+        // The leading "nothing chosen" option: First Option Text, else the Placeholder, as
+        // a text field would show it, else a generic prompt.
         $empty = '' !== $field->emptyLabel
             ? $field->emptyLabel
-            : ( '' !== $field->placeholder ? $field->placeholder : __('Select…', 'divi-active-form') );
+            : ( '' !== $field->placeholder ? $field->placeholder : __('Choose an option', 'divi-active-form') );
 
         $html = sprintf('<option value="">%s</option>', esc_html($empty));
         foreach ($options as $option) {

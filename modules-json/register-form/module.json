@@ -278,8 +278,8 @@
             "item": {
               "groupSlug": "contentSubmission",
               "attrName": "form.advanced.legacyHook",
-              "label": "Fire Divi Form Builder Hook",
-              "description": "Also fire df_after_insert_post with Divi Form Builder's arguments, for code written against that plugin.",
+              "label": "Fire daf_after_insert_post",
+              "description": "Also fire the daf_after_insert_post action, with the form ID and the new post ID, after divi_active_form/after_insert_post.",
               "priority": 50,
               "render": true,
               "features": {

@@ -111,7 +111,7 @@ describe('SubmissionHandler', function (): void {
         Actions\expectDone('divi_active_form/after_insert_post')
             ->once()
             ->with('signup', 100, [ 'category' => '12', 'second_category' => '15', 'email' => 'sec@example.org' ]);
-        Actions\expectDone('df_after_insert_post')->once()->with('signup', 100);
+        Actions\expectDone('daf_after_insert_post')->once()->with('signup', 100);
 
         $result = dafHandler()->handle(
             dafInput(dafSchema(), [ 'category' => '12', 'second_category' => '15', 'email' => 'sec@example.org' ]),
@@ -137,8 +137,8 @@ describe('SubmissionHandler', function (): void {
         expect(WpState::$insertedPosts[0]['post_title'])->toBe('Submission from Events');
     });
 
-    it('skips the Divi Form Builder hook when the form turns it off', function (): void {
-        Actions\expectDone('df_after_insert_post')->never();
+    it('skips daf_after_insert_post when the form turns it off', function (): void {
+        Actions\expectDone('daf_after_insert_post')->never();
 
         dafHandler()->handle(dafInput(dafSchema([ 'fireLegacyHook' => false ]), [ 'category' => '12', 'email' => 'a@b.co' ]), '');
     });
