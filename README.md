@@ -121,8 +121,12 @@ separate ACF Dropdown type keep working unchanged.) Set two more things under
 **Dropdown Options**:
 
 - **ACF Post Type**: ▾ lists the site's post types; or type one.
-- **ACF Field**: ▾ lists the site's ACF fields by name; or type a field name. A plain
-  post meta key works too.
+- **ACF Field**: ▾ lists the fields on the chosen post type: the ACF fields in field
+  groups assigned to it, then the post meta keys its posts use (for fields that are not
+  ACF, such as 12 Step Meeting List's group details). Keys starting with `_` are left
+  out. Any field name can still be typed. With no post type chosen it lists every ACF
+  field. The list comes from the editors-only `GET /v1/fields?postType=…` (filter
+  `divi_active_form/post_type_fields`).
 
 Each distinct value is one option, used as both the value saved and the label shown,
 in natural order. Posts where the field is empty are skipped. With ACF active the

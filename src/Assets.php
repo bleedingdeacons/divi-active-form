@@ -78,6 +78,7 @@ final class Assets
                     'enqueue_app_window' => true,
                     'data_app_window'    => [
                         'optionsUrl' => esc_url_raw(rest_url(FormController::NAMESPACE . '/options')),
+                        'fieldsUrl'  => esc_url_raw(rest_url(FormController::NAMESPACE . '/fields')),
                         'nonce'      => wp_create_nonce('wp_rest'),
                         'postTypes'  => Form\PostTypes::options(),
                         'acfFields'  => Form\AcfFields::options(),

@@ -7,6 +7,9 @@
  *   GET  /example-options
  *                   a sample JSON source for dropdowns (public; ?shape=nested for the
  *                   nested form). See ExampleOptions.
+ *   GET  /fields    the fields a Dropdown from an ACF field can read on a post type:
+ *                   its ACF fields and the post meta keys its posts use (editors only;
+ *                   the builder's ACF Field picker)
  *   GET  /options   a JSON source's options as the form would show them (editors only;
  *                   the Visual Builder's preview)
  *
@@ -22,6 +25,7 @@ namespace DiviActiveForm\Rest;
 use DiviActiveForm\Form\FieldDefinition;
 use DiviActiveForm\Form\FieldType;
 use DiviActiveForm\Form\Options\ExampleOptions;
+use DiviActiveForm\Form\PostTypeFields;
 use DiviActiveForm\Form\Options\FieldOptions;
 use DiviActiveForm\Form\Submission\SubmissionHandler;
 use DiviActiveForm\Form\Submission\SubmissionResult;
@@ -68,6 +72,22 @@ final class FormController
 
         register_rest_route(
             self::NAMESPACE,
+            '/fields',
+            [
+                'methods'             => 'GET',
+                'callback'            => [ $this, 'fields' ],
+                'permission_callback' => static fn (): bool => current_user_can('edit_posts'),
+                'args'                => [
+                    'postType' => [
+                        'type'     => 'string',
+                        'required' => true,
+                    ],
+                ],
+            ]
+        );
+
+        register_rest_route(
+            self::NAMESPACE,
             '/options',
             [
                 'methods'             => 'GET',
@@ -95,6 +115,11 @@ final class FormController
     public function exampleOptions(WP_REST_Request $request): WP_REST_Response
     {
         return new WP_REST_Response(ExampleOptions::shaped(Attrs::string($request->get_param('shape'))), 200);
+    }
+
+    public function fields(WP_REST_Request $request): WP_REST_Response
+    {
+        return new WP_REST_Response(PostTypeFields::options(Attrs::string($request->get_param('postType'))), 200);
     }
 
     public function options(WP_REST_Request $request): WP_REST_Response

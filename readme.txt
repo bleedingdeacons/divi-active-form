@@ -3,7 +3,7 @@ Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
 Stable tag: 1.4.1
-Build date: 2026/11/15 03:28:23
+Build date: 2026/11/15 03:34:36
 License: GPLv2 or later
 
 Divi 5 form builder: submissions create posts, with dropdowns filled from JSON.
