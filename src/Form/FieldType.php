@@ -21,6 +21,7 @@ enum FieldType: string
     case Tel      = 'tel';
     case Textarea = 'textarea';
     case Select   = 'select';
+    /** A Dropdown whose options come from a JSON source (Options From: JSON Source). */
     case Json     = 'json';
     case Acf      = 'acf';
     case Checkbox = 'checkbox';

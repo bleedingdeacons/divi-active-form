@@ -13,6 +13,10 @@ namespace DiviActiveForm;
 use DiviActiveForm\Render\FormRenderer;
 use DiviActiveForm\Rest\FormController;
 
+if (! defined('ABSPATH')) {
+    exit;
+}
+
 final class Plugin
 {
     public function boot(): void

@@ -29,6 +29,10 @@ use ET\Builder\Packages\Module\Module;
 use ET\Builder\Packages\Module\Options\Element\ElementClassnames;
 use ET\Builder\Packages\ModuleLibrary\ModuleRegistration;
 
+if (! defined('ABSPATH')) {
+    exit;
+}
+
 final class FormFieldModule implements DependencyInterface
 {
     public const NAME = 'divi-active-form/form-field';

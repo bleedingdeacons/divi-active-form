@@ -80,6 +80,11 @@
             "desktop": {
               "value": "top"
             }
+          },
+          "optionsFrom": {
+            "desktop": {
+              "value": "list"
+            }
           }
         }
       },
@@ -133,7 +138,7 @@
               "groupSlug": "contentField",
               "attrName": "fieldItem.advanced.type",
               "label": "Type",
-              "description": "What kind of input this is. A JSON Dropdown takes its options from the JSON Source below; an ACF Dropdown lists the values of a field across the posts of a post type.",
+              "description": "What kind of input this is. A Dropdown takes its options from a typed list or a JSON source (Options From, under Dropdown Options); an ACF Dropdown lists the values of a field across the posts of a post type.",
               "priority": 20,
               "render": true,
               "features": {
@@ -161,9 +166,6 @@
                     },
                     "select": {
                       "label": "Dropdown"
-                    },
-                    "json": {
-                      "label": "JSON Dropdown"
                     },
                     "acf": {
                       "label": "ACF Dropdown"
@@ -203,7 +205,7 @@
               "groupSlug": "contentField",
               "attrName": "fieldItem.advanced.placeholder",
               "label": "Placeholder",
-              "description": "Hint shown in the empty field. Text, Email, Phone and Paragraph fields show it greyed inside the box; a Dropdown or JSON Dropdown shows it as its first, 'nothing chosen' option unless First Option Text is set. A Checkbox has no placeholder.",
+              "description": "Hint shown in the empty field. Text, Email, Phone and Paragraph fields show it greyed inside the box; a Dropdown or ACF Dropdown shows it as its first, 'nothing chosen' option unless First Option Text is set. A Checkbox has no placeholder.",
               "priority": 40,
               "render": true,
               "features": {
@@ -224,7 +226,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.emptyLabel",
               "label": "First Option Text",
-              "description": "Dropdowns: the leading 'nothing chosen' option, e.g. Choose a size. Leave blank to use the Placeholder, or 'Choose an option' when that is blank too.",
+              "description": "Dropdown and ACF Dropdown: the leading 'nothing chosen' option, e.g. Choose a size. Leave blank to use the Placeholder, or 'Choose an option' when that is blank too.",
               "priority": 10,
               "render": true,
               "features": {
@@ -245,7 +247,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.options",
               "label": "Options",
-              "description": "Dropdown only: one option per line, as value|label, or just a label. Example: small|Small, medium|Medium, large|Large, each on its own line.",
+              "description": "Dropdown with Options From set to Typed List: one option per line, as value|label, or just a label. Example: small|Small, medium|Medium, large|Large, each on its own line.",
               "priority": 20,
               "render": true,
               "features": {
@@ -266,7 +268,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.source",
               "label": "JSON Source",
-              "description": "JSON Dropdown only: a URL or site path returning JSON. The default, /wp-json/divi-active-form/v1/example-options, is a sample list; add ?shape=nested for a nested version (Items Path data.items, Value Key code, Label Key name). /wp-json/wp/v2/categories lists this site's post categories.",
+              "description": "Dropdown with Options From set to JSON Source: a URL or site path returning JSON. The default, /wp-json/divi-active-form/v1/example-options, is a sample list; add ?shape=nested for a nested version (Items Path data.items, Value Key code, Label Key name). /wp-json/wp/v2/categories lists this site's post categories.",
               "priority": 30,
               "render": true,
               "features": {
@@ -287,7 +289,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.itemsPath",
               "label": "Items Path",
-              "description": "JSON Dropdown: dot path to the list inside the JSON. Example: data.items for {\"data\": {\"items\": [...]}}. Leave blank when the JSON is the list.",
+              "description": "Dropdown with Options From set to JSON Source: dot path to the list inside the JSON. Example: data.items for {\"data\": {\"items\": [...]}}. Leave blank when the JSON is the list.",
               "priority": 40,
               "render": true,
               "features": {
@@ -308,7 +310,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.valueKey",
               "label": "Value Key",
-              "description": "JSON Dropdown: key (or dot path) of each item's value. Example: id. Leave blank to try value, id, ID, then slug.",
+              "description": "Dropdown with Options From set to JSON Source: key (or dot path) of each item's value. Example: id. Leave blank to try value, id, ID, then slug.",
               "priority": 50,
               "render": true,
               "features": {
@@ -329,7 +331,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.labelKey",
               "label": "Label Key",
-              "description": "JSON Dropdown: key (or dot path) of each item's label. Example: name or title.rendered. Leave blank to try label, name, title.rendered, then title.",
+              "description": "Dropdown with Options From set to JSON Source: key (or dot path) of each item's label. Example: name or title.rendered. Leave blank to try label, name, title.rendered, then title.",
               "priority": 60,
               "render": true,
               "features": {
@@ -561,6 +563,37 @@
               "component": {
                 "type": "field",
                 "name": "divi-active-form/acf-field"
+              }
+            }
+          },
+          "optionsFrom": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentOptions",
+              "attrName": "fieldItem.advanced.optionsFrom",
+              "label": "Options From",
+              "description": "Dropdown only: where its options come from. Typed List uses Options below; JSON Source uses JSON Source, Items Path, Value Key and Label Key.",
+              "priority": 15,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi/select",
+                "props": {
+                  "options": {
+                    "list": {
+                      "label": "Typed List"
+                    },
+                    "json": {
+                      "label": "JSON Source"
+                    }
+                  }
+                }
               }
             }
           }

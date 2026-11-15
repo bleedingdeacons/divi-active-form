@@ -13,7 +13,7 @@ A Divi 5 form builder whose submissions become WordPress posts. It adds two modu
 - **Divi Active Form**: the form. Each submission creates a post of the type and status
   you choose. The default is a `post` held as Pending Review.
 - **Form Field**: one field. Add as many as you need. Each has a type: Text, Email,
-  Phone, Paragraph, Dropdown, Checkbox, **JSON Dropdown** (options from a JSON source)
+  Phone, Paragraph, **Dropdown** (options typed in, or from a JSON source), Checkbox,
   or **ACF Dropdown** (options from a field's values across a post type).
 
 Requires **Divi 5** (developed against 5.19.0). PHP 8.1+. ACF is optional: with it, fields
@@ -34,7 +34,7 @@ are saved through `update_field()`.
 2. Add **Form Fields**. Each one's **Field Name** is the post meta (or ACF field) the value
    is saved under; leave it blank to derive it from the label.
    - **Placeholder**: greyed hint text inside Text, Email, Phone and Paragraph
-     fields. A Dropdown or JSON Dropdown shows it as its first, "nothing chosen"
+     fields. A Dropdown or ACF Dropdown shows it as its first, "nothing chosen"
      option unless First Option Text is set. A Checkbox has none.
    - **Hint** (its own group): helper text shown **Below** the input (the default)
      or **Above** it, in grey unless you pick a **Hint Colour**. It is linked to the
@@ -54,7 +54,8 @@ switching its Type to a dropdown shows choices straight away. Replace them with 
 |---|---|---|
 | First Option Text | *(blank: the Placeholder, else `Choose an option`)* | The leading "nothing chosen" line |
 | Options | `small\|Small` · `medium\|Medium` · `large\|Large`, one per line | **Dropdown**: `value\|label`, or just a label |
-| JSON Source | `/wp-json/divi-active-form/v1/example-options` | **JSON Dropdown**: a sample list (below) |
+| Options From | Typed List | **Dropdown**: Typed List (the Options box) or JSON Source |
+| JSON Source | `/wp-json/divi-active-form/v1/example-options` | **Dropdown from a JSON source**: a sample list (below) |
 | Items Path | *(blank)* | Only when the list is nested, e.g. `data.items` |
 | Value Key | *(blank: tries `value`, `id`, `ID`, `slug`)* | e.g. `id` |
 | Label Key | *(blank: tries `label`, `name`, `title.rendered`, `title`)* | e.g. `name` |
@@ -62,7 +63,7 @@ switching its Type to a dropdown shows choices straight away. Replace them with 
 #### The example endpoint
 
 `GET /wp-json/divi-active-form/v1/example-options` is a public sample source that works
-on any site. It also shows how the JSON Dropdown settings read different shapes:
+on any site. It also shows how the JSON settings read different shapes:
 
 | URL | Returns | Settings |
 |---|---|---|
@@ -89,7 +90,7 @@ Either way, a field whose rules fail is not sent, not required and not saved.
 In the editor, **+ Add rule** adds a row. Pick another field in this form, then a
 condition: *equals*, *does not equal*, *is empty* or *is not empty*. A checkbox has
 *is checked* / *is not checked* instead. Where a comparison needs a value, a Dropdown
-or JSON Dropdown field offers its own options to choose from; other fields take typed
+or ACF Dropdown field offers its own options to choose from; other fields take typed
 text. **×** removes a rule.
 
 **Edit as text** shows the same rules as text, one per line, naming fields by their
@@ -132,7 +133,11 @@ sent, so a submitted value must be one the field holds on some published post. T
 builder previews it through the editors-only `/v1/options` route. The field suggestions
 can be changed with the `divi_active_form/acf_fields` filter.
 
-## JSON Dropdowns
+## Dropdowns from a JSON source
+
+Set a Dropdown's **Options From** to **JSON Source** and it reads its options from JSON
+instead of the Options box. (Forms saved while this was a separate JSON Dropdown type
+keep working unchanged.)
 
 **JSON Source** is a URL or a site path. A path into this site's REST API (`/wp-json/…`
 or `?rest_route=…`) is answered in-process, with no loopback HTTP request, and is not
@@ -202,7 +207,7 @@ Kill switch: `define( 'DIVI_ACTIVE_FORM_KILL', true );` in `wp-config.php`.
 ## Development
 
 The dev site is the Local site **aa-bristol-future** (Divi 5 and ACF). Its demo form
-has a three-quarter categories JSON Dropdown beside a quarter Size dropdown, and a
+has a three-quarter Category dropdown (from a JSON source) beside a quarter Size dropdown, and a
 half-width email beside a half-width "Call me back". Its conditional fields are
 "Why large?" (label hidden), shown only for Large; a phone number (label left), shown
 only when "Call me back" is ticked; and a message (label below), enabled once a
@@ -212,7 +217,7 @@ category is chosen. It saves submissions as draft posts.
 pwsh bin/dev.ps1 setup     # build, junction into the site, activate, seed categories + demo page
 pwsh bin/dev.ps1 composer install
 npm run build              # or: npm run watch
-vendor/bin/pest            # PHP tests (wp-mocks)
+vendor/bin/pest            # PHP tests (wp-mocks), including architecture rules (tests/php/ArchTest.php)
 npm test                   # Vitest: form behaviour and the builder's field parsing
 pwsh bin/dev.ps1 composer phpstan
 pwsh bin/dev.ps1 composer phpcs

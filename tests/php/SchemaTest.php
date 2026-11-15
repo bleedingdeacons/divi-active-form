@@ -71,6 +71,16 @@ describe('FieldDefinition', function (): void {
             ->and(FieldDefinition::hintPosition('sideways'))->toBe('below');
     });
 
+    it('reads a Dropdown fed from a JSON source as the JSON type, and keeps the old JSON Dropdown working', function (): void {
+        expect(FieldDefinition::type('select', 'json'))->toBe(FieldType::Json)
+            ->and(FieldDefinition::type('select', 'list'))->toBe(FieldType::Select)
+            ->and(FieldDefinition::type('select', ''))->toBe(FieldType::Select)
+            ->and(FieldDefinition::type('json', ''))->toBe(FieldType::Json)
+            ->and(FieldDefinition::type('text', 'json'))->toBe(FieldType::Text)
+            ->and(FieldDefinition::fromAttrs(dafField('Colour', [ 'type' => 'select', 'optionsFrom' => 'json', 'source' => '/x' ]))->type)
+            ->toBe(FieldType::Json);
+    });
+
     it('treats an unknown type as text', function (): void {
         expect(FieldDefinition::fromAttrs(dafField('A', [ 'type' => 'file' ]))->type)->toBe(FieldType::Text);
     });

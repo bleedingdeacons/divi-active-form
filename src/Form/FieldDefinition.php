@@ -86,7 +86,7 @@ final class FieldDefinition
         return new self(
             name: $name,
             label: $label,
-            type: FieldType::parse($setting('type')),
+            type: self::type($setting('type'), $setting('optionsFrom')),
             required: 'on' === $setting('required'),
             placeholder: $setting('placeholder'),
             width: self::width($setting('width')),
@@ -115,6 +115,18 @@ final class FieldDefinition
     public function isActive(array $values): bool
     {
         return $this->visibleWhen->passes($values) && $this->enabledWhen->passes($values);
+    }
+
+    /**
+     * The field's type from its Type and Options From settings. A Dropdown whose options
+     * come from a JSON source is handled as the JSON type from here on; so is a field
+     * saved before the two were merged, whose Type is still `json`.
+     */
+    public static function type(string $type, string $optionsFrom): FieldType
+    {
+        $parsed = FieldType::parse($type);
+
+        return FieldType::Select === $parsed && 'json' === $optionsFrom ? FieldType::Json : $parsed;
     }
 
     /**

@@ -72,7 +72,7 @@ if ( 'reset' === $daf_mode ) {
 	return;
 }
 
-// Sample post categories, so the demo's JSON Dropdown (WordPress's own
+// Sample post categories, so the demo's Category dropdown (fed from WordPress's own
 // /wp/v2/categories, which lists empty categories too) has something to list.
 foreach ( [ 'Sample: News', 'Sample: Events', 'Sample: Notices' ] as $daf_name ) {
 	$daf_term = wp_insert_term( $daf_name, 'category' );
@@ -151,14 +151,15 @@ $daf_field = static function ( string $label, array $settings, array $hint = [] 
 $daf_fields = $daf_field(
 	'Category',
 	[
-		'name'       => 'category',
-		'type'       => 'json',
-		'required'   => 'on',
-		'source'     => '/wp-json/wp/v2/categories?per_page=100',
-		'valueKey'   => 'id',
-		'labelKey'   => 'name',
-		'emptyLabel' => 'Choose a category',
-		'width'      => '75',
+		'name'        => 'category',
+		'type'        => 'select',
+		'optionsFrom' => 'json',
+		'required'    => 'on',
+		'source'      => '/wp-json/wp/v2/categories?per_page=100',
+		'valueKey'    => 'id',
+		'labelKey'    => 'name',
+		'emptyLabel'  => 'Choose a category',
+		'width'       => '75',
 	]
 )
 	. $daf_field(
@@ -175,13 +176,14 @@ $daf_fields = $daf_field(
 	. $daf_field(
 		'Favourite colour',
 		[
-			'name'       => 'colour',
-			'type'       => 'json',
-			'source'     => '/wp-json/divi-active-form/v1/example-options?shape=nested',
-			'itemsPath'  => 'data.items',
-			'valueKey'   => 'code',
-			'labelKey'   => 'name',
-			'emptyLabel' => 'Choose a colour',
+			'name'        => 'colour',
+			'type'        => 'select',
+			'optionsFrom' => 'json',
+			'source'      => '/wp-json/divi-active-form/v1/example-options?shape=nested',
+			'itemsPath'   => 'data.items',
+			'valueKey'    => 'code',
+			'labelKey'    => 'name',
+			'emptyLabel'  => 'Choose a colour',
 		]
 	)
 	// An ACF Dropdown: the values of the daf_region field across published Projects.

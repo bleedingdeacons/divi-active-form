@@ -4,8 +4,9 @@
  * A sample JSON source for dropdowns, served at
  * GET /wp-json/divi-active-form/v1/example-options.
  *
- * It is the JSON Dropdown's default source, so a new field shows working options on
- * any site, and its two shapes show the JSON Dropdown settings at work:
+ * It is the default JSON Source for a Dropdown, so one switched to Options From: JSON
+ * Source shows working options on any site, and its two shapes show the JSON settings
+ * at work:
  *
  *   (default)      [{"value": "red", "label": "Red"}, ...]
  *                  read with no keys set

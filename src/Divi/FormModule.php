@@ -37,6 +37,10 @@ use ET\Builder\Packages\Module\Options\Text\TextStyle;
 use ET\Builder\Packages\ModuleLibrary\ModuleRegistration;
 use WP_Block_Type_Registry;
 
+if (! defined('ABSPATH')) {
+    exit;
+}
+
 final class FormModule implements DependencyInterface
 {
     public const NAME = 'divi-active-form/form';

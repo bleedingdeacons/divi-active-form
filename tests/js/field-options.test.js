@@ -109,3 +109,12 @@ describe( 'ACF Dropdown settings', () => {
 		expect( hasRemoteOptions( fieldFromAttrs( attrs( 'Region', { type: 'text' } ) ) ) ).toBe( false );
 	} );
 } );
+
+describe( 'Dropdown Options From', () => {
+	it( 'treats a Dropdown fed from a JSON source as the JSON type, as the server does', () => {
+		expect( fieldFromAttrs( attrs( 'Colour', { type: 'select', optionsFrom: 'json', source: '/x' } ) ).type ).toBe( 'json' );
+		expect( fieldFromAttrs( attrs( 'Colour', { type: 'select', optionsFrom: 'list' } ) ).type ).toBe( 'select' );
+		expect( fieldFromAttrs( attrs( 'Colour', { type: 'select' } ) ).type ).toBe( 'select' );
+		expect( fieldFromAttrs( attrs( 'Colour', { type: 'json', source: '/x' } ) ).type ).toBe( 'json' );
+	} );
+} );

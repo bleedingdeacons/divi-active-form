@@ -11,6 +11,10 @@ declare(strict_types=1);
 
 namespace DiviActiveForm\Support;
 
+if (! defined('ABSPATH')) {
+    exit;
+}
+
 final class Attrs
 {
     /**

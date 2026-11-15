@@ -12,6 +12,10 @@ namespace DiviActiveForm;
 
 use DiviActiveForm\Rest\FormController;
 
+if (! defined('ABSPATH')) {
+    exit;
+}
+
 final class Assets
 {
     public const FRONTEND_HANDLE = 'divi-active-form-form';

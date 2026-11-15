@@ -40,7 +40,9 @@ export function fieldFromAttrs( attrs ) {
 	const read = ( path ) => desktop( attrs, path ) ?? desktop( DEFAULTS, path );
 	const setting = ( key ) => text( read( `fieldItem.advanced.${ key }` ) );
 	const label = stripTags( text( read( 'fieldItem.innerContent' ) ) ).trim();
-	const type = TYPES.includes( setting( 'type' ) ) ? setting( 'type' ) : 'text';
+	const parsed = TYPES.includes( setting( 'type' ) ) ? setting( 'type' ) : 'text';
+	// A Dropdown fed from a JSON source is the JSON type, as FieldDefinition::type() has it.
+	const type = parsed === 'select' && setting( 'optionsFrom' ) === 'json' ? 'json' : parsed;
 
 	return {
 		name: sanitizeName( setting( 'name' ) || label ),
