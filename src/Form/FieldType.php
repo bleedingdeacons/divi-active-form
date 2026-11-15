@@ -22,6 +22,7 @@ enum FieldType: string
     case Textarea = 'textarea';
     case Select   = 'select';
     case Json     = 'json';
+    case Acf      = 'acf';
     case Checkbox = 'checkbox';
 
     /**
@@ -37,6 +38,6 @@ enum FieldType: string
      */
     public function hasChoices(): bool
     {
-        return $this === self::Select || $this === self::Json;
+        return $this === self::Select || $this === self::Json || $this === self::Acf;
     }
 }

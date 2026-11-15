@@ -33,10 +33,14 @@ final class FieldOptions implements OptionProvider
     /** @var array<string, mixed> Decoded documents, per request. */
     private array $documents = [];
 
+    /** @var array<string, list<array{value: string, label: string}>> ACF Dropdown options, per request. */
+    private array $acfOptions = [];
+
     public function options(FieldDefinition $field): array
     {
         $options = match ($field->type) {
             FieldType::Select => StaticOptions::parse($field->options),
+            FieldType::Acf    => $this->acf($field),
             FieldType::Json   => OptionNormaliser::normalise(
                 $this->document($field->source),
                 $field->itemsPath,
@@ -55,6 +59,21 @@ final class FieldOptions implements OptionProvider
         $filtered = apply_filters('divi_active_form/field_options', $options, $field);
 
         return is_array($filtered) ? self::clean($filtered) : $options;
+    }
+
+    /**
+     * An ACF Dropdown's options, read once per request for each post type and field.
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    private function acf(FieldDefinition $field): array
+    {
+        $key = $field->acfPostType . '|' . $field->acfField;
+        if (! array_key_exists($key, $this->acfOptions)) {
+            $this->acfOptions[ $key ] = AcfFieldOptions::options($field->acfPostType, $field->acfField);
+        }
+
+        return $this->acfOptions[ $key ];
     }
 
     /**

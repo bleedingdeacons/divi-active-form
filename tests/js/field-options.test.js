@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { conditionSummary, emptyLabel, fieldFromAttrs, optionsQuery, parseStaticOptions, sanitizeName } from '../../assets/src/builder/field-options';
+import { conditionSummary, emptyLabel, fieldFromAttrs, hasRemoteOptions, optionsQuery, parseStaticOptions, sanitizeName } from '../../assets/src/builder/field-options';
 
 const attrs = ( label, advanced ) => ( {
 	fieldItem: {
@@ -92,5 +92,20 @@ describe( 'Conditional Logic settings', () => {
 		expect( field.enabledRules ).toEqual( [] );
 		expect( conditionSummary( 'Shown', field.visibleRules, field.visibleMatch ) ).toBe( 'Shown when callback is checked or size = large' );
 		expect( conditionSummary( 'Enabled', field.enabledRules, field.enabledMatch ) ).toBe( '' );
+	} );
+} );
+
+describe( 'ACF Dropdown settings', () => {
+	it( 'reads the post type and field, and asks the options endpoint for them', () => {
+		const field = fieldFromAttrs( attrs( 'Region', { type: 'acf', acfPostType: 'Project', acfField: 'daf_region' } ) );
+
+		expect( field ).toMatchObject( { type: 'acf', acfPostType: 'project', acfField: 'daf_region' } );
+		expect( hasRemoteOptions( field ) ).toBe( true );
+		expect( Object.fromEntries( new URLSearchParams( optionsQuery( field ) ) ) ).toEqual( { acfPostType: 'project', acfField: 'daf_region' } );
+	} );
+
+	it( 'asks for nothing until both are set', () => {
+		expect( hasRemoteOptions( fieldFromAttrs( attrs( 'Region', { type: 'acf', acfPostType: 'project' } ) ) ) ).toBe( false );
+		expect( hasRemoteOptions( fieldFromAttrs( attrs( 'Region', { type: 'text' } ) ) ) ).toBe( false );
 	} );
 } );

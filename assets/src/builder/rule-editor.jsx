@@ -59,11 +59,12 @@ const styles = {
 
 /** The value to compare with: the tested field's own options where it has some. */
 const ValueInput = ( { field, value, onChange, readonly } ) => {
-	const json = useJsonOptions( field && field.type === 'json' ? field : null );
+	const remote = field && ( field.type === 'json' || field.type === 'acf' );
+	const json = useJsonOptions( remote ? field : null );
 	let options = null;
 	if ( field && field.type === 'select' ) {
 		options = parseStaticOptions( field.options );
-	} else if ( field && field.type === 'json' ) {
+	} else if ( remote ) {
 		options = json.options;
 	}
 
@@ -88,7 +89,7 @@ const ValueInput = ( { field, value, onChange, readonly } ) => {
 			style={ styles.value }
 			value={ value }
 			readOnly={ readonly }
-			placeholder={ field && field.type === 'json' && json.status === 'loading' ? 'Loading options…' : 'Value' }
+			placeholder={ remote && json.status === 'loading' ? 'Loading options…' : 'Value' }
 			onChange={ ( e ) => onChange( e.target.value ) }
 		/>
 	);

@@ -74,10 +74,9 @@ final class FormController
                 'callback'            => [ $this, 'options' ],
                 'permission_callback' => static fn (): bool => current_user_can('edit_posts'),
                 'args'                => [
-                    'source'    => [
-                        'type'     => 'string',
-                        'required' => true,
-                    ],
+                    'source'    => [ 'type' => 'string' ],
+                    'acfPostType' => [ 'type' => 'string' ],
+                    'acfField'  => [ 'type' => 'string' ],
                     'itemsPath' => [ 'type' => 'string' ],
                     'valueKey'  => [ 'type' => 'string' ],
                     'labelKey'  => [ 'type' => 'string' ],
@@ -113,6 +112,24 @@ final class FormController
         );
 
         $sources = new FieldOptions();
+
+        if ('' !== $string('acfPostType')) {
+            $acf = new FieldDefinition(
+                name: 'preview',
+                label: '',
+                type: FieldType::Acf,
+                acfPostType: $string('acfPostType'),
+                acfField: $string('acfField'),
+            );
+
+            return new WP_REST_Response(
+                [
+                    'options'  => $sources->options($acf),
+                    'readable' => post_type_exists(sanitize_key($string('acfPostType'))),
+                ],
+                200
+            );
+        }
 
         return new WP_REST_Response(
             [

@@ -55,7 +55,8 @@ const Control = ( { field, json } ) => {
 		case 'textarea':
 			return <textarea { ...common } rows={ 5 } placeholder={ field.placeholder } />;
 		case 'select':
-		case 'json': {
+		case 'json':
+		case 'acf': {
 			const options = field.type === 'select' ? parseStaticOptions( field.options ) : json.options;
 			return (
 				<select { ...common } className="daf-field__input daf-field__select" defaultValue="">
@@ -74,11 +75,14 @@ const Control = ( { field, json } ) => {
 };
 
 const JsonStatus = ( { field, json } ) => {
-	if ( field.type !== 'json' ) {
+	if ( field.type !== 'json' && field.type !== 'acf' ) {
 		return null;
 	}
-	if ( ! field.source ) {
+	if ( field.type === 'json' && ! field.source ) {
 		return <Note>Set a JSON Source under Dropdown Options.</Note>;
+	}
+	if ( field.type === 'acf' && ! ( field.acfPostType && field.acfField ) ) {
+		return <Note>Set an ACF Post Type and ACF Field under Dropdown Options.</Note>;
 	}
 	if ( json.status === 'loading' ) {
 		return <Note>Loading options…</Note>;
@@ -87,7 +91,8 @@ const JsonStatus = ( { field, json } ) => {
 		return <Note>{ `Could not load options: ${ json.message }` }</Note>;
 	}
 	if ( json.status === 'ready' ) {
-		return <Note>{ `${ json.options.length } option${ json.options.length === 1 ? '' : 's' } from ${ field.source }` }</Note>;
+		const from = field.type === 'acf' ? `${ field.acfField } on ${ field.acfPostType }` : field.source;
+		return <Note>{ `${ json.options.length } option${ json.options.length === 1 ? '' : 's' } from ${ from }` }</Note>;
 	}
 	return null;
 };

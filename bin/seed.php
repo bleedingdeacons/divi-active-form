@@ -31,7 +31,7 @@ $daf_mode = $args[0] ?? 'seed';
 $daf_reset = static function (): void {
 	$ids = get_posts(
 		[
-			'post_type'      => 'page',
+			'post_type'      => [ 'page', 'project' ],
 			'post_status'    => 'any',
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
@@ -55,7 +55,15 @@ $daf_reset = static function (): void {
 		wp_delete_term( (int) $term_id, 'category' );
 	}
 
-	WP_CLI::log( sprintf( 'Removed %d sample page(s) and %d sample category(ies).', count( $ids ), count( $terms ) ) );
+	// The demo ACF field group.
+	if ( function_exists( 'acf_get_field_group' ) && function_exists( 'acf_delete_field_group' ) ) {
+		$group = acf_get_field_group( 'group_daf_demo' );
+		if ( is_array( $group ) && ! empty( $group['ID'] ) ) {
+			acf_delete_field_group( (int) $group['ID'] );
+		}
+	}
+
+	WP_CLI::log( sprintf( 'Removed %d sample post(s) and %d sample category(ies).', count( $ids ), count( $terms ) ) );
 };
 
 $daf_reset();
@@ -75,6 +83,43 @@ foreach ( [ 'Sample: News', 'Sample: Events', 'Sample: Notices' ] as $daf_name )
 	add_term_meta( (int) $daf_term['term_id'], DAF_SAMPLE_META, 1 );
 }
 WP_CLI::log( 'Created 3 sample categories.' );
+
+// An ACF field on Projects, and sample Projects with values in it, for the demo's ACF
+// Dropdown. Two projects share a region, to show each value is listed once.
+if ( function_exists( 'acf_import_field_group' ) && post_type_exists( 'project' ) ) {
+	acf_import_field_group(
+		[
+			'key'      => 'group_daf_demo',
+			'title'    => 'Divi Active Form demo',
+			'fields'   => [
+				[
+					'key'   => 'field_daf_demo_region',
+					'label' => 'Region',
+					'name'  => 'daf_region',
+					'type'  => 'text',
+				],
+			],
+			'location' => [ [ [ 'param' => 'post_type', 'operator' => '==', 'value' => 'project' ] ] ],
+		]
+	);
+	foreach ( [ 'Harbourside Mural' => 'Bristol', 'Abbey Garden' => 'Bath', 'Pier Lights' => 'Weston-super-Mare', 'Quayside Market' => 'Bristol' ] as $daf_title => $daf_region ) {
+		$daf_project = wp_insert_post(
+			[
+				'post_type'   => 'project',
+				'post_status' => 'publish',
+				'post_title'  => $daf_title,
+				'meta_input'  => [ DAF_SAMPLE_META => 1 ],
+			],
+			true
+		);
+		if ( ! is_wp_error( $daf_project ) ) {
+			update_field( 'field_daf_demo_region', $daf_region, (int) $daf_project );
+		}
+	}
+	WP_CLI::log( 'Created the demo ACF field (daf_region on Projects) and 4 sample projects.' );
+} else {
+	WP_CLI::warning( 'ACF or the Project post type is missing, so the demo ACF Dropdown will be empty.' );
+}
 
 $daf_version = defined( 'ET_BUILDER_PRODUCT_VERSION' ) ? ET_BUILDER_PRODUCT_VERSION : '5.0.0';
 
@@ -137,6 +182,17 @@ $daf_fields = $daf_field(
 			'valueKey'   => 'code',
 			'labelKey'   => 'name',
 			'emptyLabel' => 'Choose a colour',
+		]
+	)
+	// An ACF Dropdown: the values of the daf_region field across published Projects.
+	. $daf_field(
+		'Region',
+		[
+			'name'        => 'region',
+			'type'        => 'acf',
+			'acfPostType' => 'project',
+			'acfField'    => 'daf_region',
+			'placeholder' => 'Choose a region',
 		]
 	)
 	// Conditional Logic: shown only for one dropdown choice. Its label is hidden (still

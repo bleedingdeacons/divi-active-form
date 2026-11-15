@@ -1,19 +1,21 @@
 /**
- * The Divi Active Form's Post Type setting: an editable dropdown (combobox).
+ * Editable dropdown (combobox) settings fields: type a value, or open the list (▾, or
+ * the down arrow key) to pick one. Typing filters the list; any value can still be
+ * typed, and one that is not in the list is flagged.
  *
- * Registered with Divi's field library as `divi-active-form/post-type`. Type a post
- * type's name, or open the list (▾, or the down arrow key) to choose from every post
- * type registered on the site; the list comes from PostTypes::options() via the
- * builder data, so it includes custom post types that are not exposed to the REST API.
- * A name that is not registered is allowed (a post type may be registered later) but
- * flagged, because the server refuses submissions to a post type that does not exist.
+ * Each list comes from the builder data that Assets::registerBuilder() passes in, so it
+ * is built in PHP (and can include things the REST API does not expose). Registered
+ * with Divi's field library under these names:
+ *
+ *   divi-active-form/post-type  post types (PostTypes::options()): the Divi Active
+ *                               Form's Post Type, and a Form Field's ACF Post Type
+ *   divi-active-form/acf-field  ACF field names (AcfFields::options()): a Form
+ *                               Field's ACF Field
  */
 import React, { useMemo, useRef, useState } from 'react';
 import { filterOptions, findOption, moveHighlight } from './combobox';
 
-export const FIELD_NAME = 'divi-active-form/post-type';
-
-const postTypes = () => ( window.DiviActiveFormBuilderData && window.DiviActiveFormBuilderData.postTypes ) || [];
+const builderList = ( key ) => ( window.DiviActiveFormBuilderData && window.DiviActiveFormBuilderData[ key ] ) || [];
 
 const styles = {
 	wrap: { position: 'relative' },
@@ -43,8 +45,8 @@ const styles = {
 	warning: { margin: '6px 0 0', fontSize: '12px', color: '#b42318' },
 };
 
-export const PostTypeField = ( { value, onChange, name, readonly = false } ) => {
-	const options = useMemo( postTypes, [] );
+const makeComboboxField = ( { dataKey, placeholder, listLabel, unknown } ) => ( { value, onChange, name, readonly = false } ) => {
+	const options = useMemo( () => builderList( dataKey ), [] );
 	const text = typeof value === 'string' ? value : '';
 	const [ open, setOpen ] = useState( false );
 	const [ showAll, setShowAll ] = useState( false );
@@ -86,7 +88,7 @@ export const PostTypeField = ( { value, onChange, name, readonly = false } ) => 
 					name={ name }
 					value={ text }
 					readOnly={ readonly }
-					placeholder="e.g. post"
+					placeholder={ placeholder }
 					role="combobox"
 					aria-expanded={ open }
 					aria-autocomplete="list"
@@ -105,7 +107,7 @@ export const PostTypeField = ( { value, onChange, name, readonly = false } ) => 
 					<button
 						type="button"
 						style={ styles.toggle }
-						aria-label="Show all post types"
+						aria-label={ listLabel }
 						onMouseDown={ ( e ) => e.preventDefault() }
 						onClick={ () => {
 							setOpen( ! open );
@@ -136,10 +138,25 @@ export const PostTypeField = ( { value, onChange, name, readonly = false } ) => 
 			) }
 			{ current && <p style={ styles.note }>{ current.label }</p> }
 			{ ! current && text.trim() !== '' && options.length > 0 && (
-				<p style={ styles.warning }>“{ text.trim() }” is not a post type registered on this site, so submissions would be refused.</p>
+				<p style={ styles.warning }>{ unknown( text.trim() ) }</p>
 			) }
 		</div>
 	);
 };
 
-PostTypeField.fieldName = FIELD_NAME;
+export const POST_TYPE_FIELD = 'divi-active-form/post-type';
+export const ACF_FIELD_FIELD = 'divi-active-form/acf-field';
+
+export const PostTypeField = makeComboboxField( {
+	dataKey: 'postTypes',
+	placeholder: 'e.g. post',
+	listLabel: 'Show all post types',
+	unknown: ( text ) => `“${ text }” is not a post type registered on this site.`,
+} );
+
+export const AcfFieldField = makeComboboxField( {
+	dataKey: 'acfFields',
+	placeholder: 'e.g. region',
+	listLabel: 'Show all ACF fields',
+	unknown: ( text ) => `“${ text }” is not an ACF field on this site; it will be read as plain post meta.`,
+} );

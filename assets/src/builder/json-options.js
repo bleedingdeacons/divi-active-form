@@ -1,17 +1,17 @@
 /**
- * A JSON Dropdown's options in the builder, fetched through divi-active-form/v1/options so
+ * A JSON or ACF Dropdown's options in the builder, fetched through divi-active-form/v1/options so
  * they are read exactly as the server reads them (same normalising, same fallbacks).
  * Shared by the field preview and the Conditional Logic rule editor.
  */
 import { useEffect, useState } from 'react';
-import { optionsQuery } from './field-options';
+import { hasRemoteOptions, optionsQuery } from './field-options';
 
 const builderData = () => window.DiviActiveFormBuilderData || {};
 
 const cache = new Map();
 
 export const useJsonOptions = ( field ) => {
-	const query = field && field.type === 'json' && field.source ? optionsQuery( field ) : '';
+	const query = hasRemoteOptions( field ) ? optionsQuery( field ) : '';
 	const [ state, setState ] = useState( () => ( cache.has( query ) ? cache.get( query ) : { status: 'idle', options: [] } ) );
 
 	useEffect( () => {

@@ -76,6 +76,7 @@ final class Assets
                         'optionsUrl' => esc_url_raw(rest_url(FormController::NAMESPACE . '/options')),
                         'nonce'      => wp_create_nonce('wp_rest'),
                         'postTypes'  => Form\PostTypes::options(),
+                        'acfFields'  => Form\AcfFields::options(),
                     ],
                 ],
                 'style'   => [

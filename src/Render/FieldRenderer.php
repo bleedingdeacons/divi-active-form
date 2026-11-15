@@ -137,7 +137,7 @@ final class FieldRenderer
 
         return match ($field->type) {
             FieldType::Textarea => sprintf('<textarea class="daf-field__input" rows="5" %1$s%2$s></textarea>', $common, $placeholder),
-            FieldType::Select, FieldType::Json => self::select($field, $options, $common),
+            FieldType::Select, FieldType::Json, FieldType::Acf => self::select($field, $options, $common),
             default => sprintf(
                 '<input class="daf-field__input" type="%1$s" %2$s%3$s%4$s>',
                 esc_attr($field->type->value),
@@ -164,7 +164,7 @@ final class FieldRenderer
             $html .= sprintf('<option value="%1$s">%2$s</option>', esc_attr($option['value']), esc_html($option['label']));
         }
 
-        $unavailable = FieldType::Json === $field->type && [] === $options
+        $unavailable = ( FieldType::Json === $field->type || FieldType::Acf === $field->type ) && [] === $options
             ? sprintf(' data-daf-empty="%s"', esc_attr__('No options are available right now.', 'divi-active-form'))
             : '';
 

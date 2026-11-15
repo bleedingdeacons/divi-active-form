@@ -133,7 +133,7 @@
               "groupSlug": "contentField",
               "attrName": "fieldItem.advanced.type",
               "label": "Type",
-              "description": "What kind of input this is. A JSON Dropdown takes its options from the JSON Source below.",
+              "description": "What kind of input this is. A JSON Dropdown takes its options from the JSON Source below; an ACF Dropdown lists the values of a field across the posts of a post type.",
               "priority": 20,
               "render": true,
               "features": {
@@ -164,6 +164,9 @@
                     },
                     "json": {
                       "label": "JSON Dropdown"
+                    },
+                    "acf": {
+                      "label": "ACF Dropdown"
                     },
                     "checkbox": {
                       "label": "Checkbox"
@@ -516,6 +519,48 @@
                     }
                   }
                 }
+              }
+            }
+          },
+          "acfPostType": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentOptions",
+              "attrName": "fieldItem.advanced.acfPostType",
+              "label": "ACF Post Type",
+              "description": "ACF Dropdown only: the post type whose published posts are read. ▾ lists the site's post types.",
+              "priority": 70,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi-active-form/post-type"
+              }
+            }
+          },
+          "acfField": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentOptions",
+              "attrName": "fieldItem.advanced.acfField",
+              "label": "ACF Field",
+              "description": "ACF Dropdown only: the field whose values become the options, by field name. ▾ lists the site's ACF fields; plain post meta keys can be typed too. Each distinct value appears once, and the value is what is saved.",
+              "priority": 80,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi-active-form/acf-field"
               }
             }
           }

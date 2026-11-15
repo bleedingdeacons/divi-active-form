@@ -43,6 +43,8 @@ final class FieldDefinition
      * @param string $labelPosition One of LABEL_POSITIONS.
      * @param string $hint        Helper text shown with the field; blank for none.
      * @param string $hintPosition One of HINT_POSITIONS.
+     * @param string $acfPostType ACF Dropdown only: the post type whose posts are read.
+     * @param string $acfField    ACF Dropdown only: the field whose values become the options.
      * @param Conditions $visibleWhen When the field is shown; hidden fields are not sent or saved.
      * @param Conditions $enabledWhen When the field can be filled in; disabled fields are not sent or saved.
      */
@@ -62,6 +64,8 @@ final class FieldDefinition
         public readonly string $labelPosition = 'top',
         public readonly string $hint = '',
         public readonly string $hintPosition = 'below',
+        public readonly string $acfPostType = '',
+        public readonly string $acfField = '',
         public readonly Conditions $visibleWhen = new Conditions(),
         public readonly Conditions $enabledWhen = new Conditions(),
     ) {
@@ -95,6 +99,8 @@ final class FieldDefinition
             labelPosition: self::labelPosition($setting('labelPosition')),
             hint: trim(Attrs::string(Attrs::desktop($attrs, 'hint.advanced.text'))),
             hintPosition: self::hintPosition(Attrs::string(Attrs::desktop($attrs, 'hint.advanced.position'))),
+            acfPostType: sanitize_key($setting('acfPostType')),
+            acfField: $setting('acfField'),
             visibleWhen: Conditions::parse(Attrs::string(Attrs::desktop($attrs, 'fieldItem.advanced.visibleRules')), $setting('visibleMatch')),
             enabledWhen: Conditions::parse(Attrs::string(Attrs::desktop($attrs, 'fieldItem.advanced.enabledRules')), $setting('enabledMatch')),
         );
@@ -170,6 +176,8 @@ final class FieldDefinition
             'labelPosition' => $this->labelPosition,
             'hint'        => $this->hint,
             'hintPosition' => $this->hintPosition,
+            'acfPostType' => $this->acfPostType,
+            'acfField'    => $this->acfField,
             'visibleWhen' => $this->visibleWhen->toArray(),
             'enabledWhen' => $this->enabledWhen->toArray(),
         ];
@@ -198,6 +206,8 @@ final class FieldDefinition
             labelPosition: self::labelPosition($string('labelPosition')),
             hint: $string('hint'),
             hintPosition: self::hintPosition($string('hintPosition')),
+            acfPostType: sanitize_key($string('acfPostType')),
+            acfField: $string('acfField'),
             visibleWhen: Conditions::fromArray($data['visibleWhen'] ?? null),
             enabledWhen: Conditions::fromArray($data['enabledWhen'] ?? null),
         );

@@ -13,8 +13,8 @@ A Divi 5 form builder whose submissions become WordPress posts. It adds two modu
 - **Divi Active Form**: the form. Each submission creates a post of the type and status
   you choose. The default is a `post` held as Pending Review.
 - **Form Field**: one field. Add as many as you need. Each has a type: Text, Email,
-  Phone, Paragraph, Dropdown, Checkbox or **JSON Dropdown**, whose options come from a
-  JSON source.
+  Phone, Paragraph, Dropdown, Checkbox, **JSON Dropdown** (options from a JSON source)
+  or **ACF Dropdown** (options from a field's values across a post type).
 
 Requires **Divi 5** (developed against 5.19.0). PHP 8.1+. ACF is optional: with it, fields
 are saved through `update_field()`.
@@ -111,6 +111,26 @@ The rules run in the browser as the visitor fills in the form. They run again on
 server against the submitted values, and they are part of the signed schema, so a
 visitor cannot get round them. Without JavaScript every field shows, and the server
 still ignores the ones whose rules fail.
+
+## ACF Dropdowns
+
+An **ACF Dropdown** lists the values one field holds across the published posts of
+one post type. Set two things under **Dropdown Options**:
+
+- **ACF Post Type**: ▾ lists the site's post types; or type one.
+- **ACF Field**: ▾ lists the site's ACF fields by name; or type a field name. A plain
+  post meta key works too.
+
+Each distinct value is one option, used as both the value saved and the label shown,
+in natural order. Posts where the field is empty are skipped. With ACF active the
+field is read with `get_field()`, so formatted values come out readable: a Select's
+label, a Post Object's title, a Taxonomy's term names, a multi-value field's values
+joined with commas.
+
+The list is built on the server when the page renders, and again when the form is
+sent, so a submitted value must be one the field holds on some published post. The
+builder previews it through the editors-only `/v1/options` route. The field suggestions
+can be changed with the `divi_active_form/acf_fields` filter.
 
 ## JSON Dropdowns
 

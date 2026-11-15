@@ -1,7 +1,7 @@
 /**
  * Visual Builder entry point: registers the Divi Active Form and its Form Field child with
- * Divi 5's module library, and its two custom settings fields (the Conditional Logic
- * rule editor and the Post Type dropdown) with the field library.
+ * Divi 5's module library, and its custom settings fields (the Conditional Logic rule
+ * editor, and the post type and ACF field dropdowns) with the field library.
  */
 import { addAction } from '@wordpress/hooks';
 import { registerModule } from '@divi/module-library';
@@ -9,7 +9,7 @@ import { registerFieldComponent } from '@divi/field-library';
 import { formModule } from './form';
 import { formFieldModule } from './form-field';
 import { FIELD_NAME as RULES_FIELD, RuleEditor } from './rule-editor';
-import { FIELD_NAME as POST_TYPE_FIELD, PostTypeField } from './post-type-field';
+import { ACF_FIELD_FIELD, AcfFieldField, POST_TYPE_FIELD, PostTypeField } from './combobox-field';
 
 // Styles come from assets/build/form.css, which Assets::registerBuilder() loads into the builder.
 
@@ -17,6 +17,7 @@ import { FIELD_NAME as POST_TYPE_FIELD, PostTypeField } from './post-type-field'
 // to happen before the first Form Field's settings are opened.
 registerFieldComponent( { name: RULES_FIELD, component: RuleEditor } );
 registerFieldComponent( { name: POST_TYPE_FIELD, component: PostTypeField } );
+registerFieldComponent( { name: ACF_FIELD_FIELD, component: AcfFieldField } );
 
 addAction( 'divi.moduleLibrary.registerModuleLibraryStore.after', 'diviActiveForm', () => {
 	for ( const definition of [ formModule, formFieldModule ] ) {

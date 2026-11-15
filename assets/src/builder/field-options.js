@@ -23,7 +23,7 @@ const text = ( value ) => ( typeof value === 'string' || typeof value === 'numbe
 
 const stripTags = ( html ) => html.replace( /<[^>]*>/g, '' );
 
-export const TYPES = [ 'text', 'email', 'tel', 'textarea', 'select', 'json', 'checkbox' ];
+export const TYPES = [ 'text', 'email', 'tel', 'textarea', 'select', 'json', 'acf', 'checkbox' ];
 export const WIDTHS = [ '25', '50', '75', '100' ];
 export const LABEL_POSITIONS = [ 'top', 'left', 'below', 'hidden' ];
 
@@ -51,6 +51,8 @@ export function fieldFromAttrs( attrs ) {
 		width: WIDTHS.includes( setting( 'width' ) ) ? setting( 'width' ) : '100',
 		labelPosition: LABEL_POSITIONS.includes( setting( 'labelPosition' ) ) ? setting( 'labelPosition' ) : 'top',
 		hint: text( read( 'hint.advanced.text' ) ),
+		acfPostType: setting( 'acfPostType' ).toLowerCase(),
+		acfField: setting( 'acfField' ),
 		hintPosition: text( read( 'hint.advanced.position' ) ) === 'above' ? 'above' : 'below',
 		options: typeof read( 'fieldItem.advanced.options' ) === 'string' ? read( 'fieldItem.advanced.options' ) : '',
 		source: setting( 'source' ),
@@ -63,6 +65,17 @@ export function fieldFromAttrs( attrs ) {
 		enabledRules: rulesText( read( 'fieldItem.advanced.enabledRules' ) ),
 		enabledMatch: setting( 'enabledMatch' ) === 'any' ? 'any' : 'all',
 	};
+}
+
+/** Whether a field's options come from the server (a JSON or an ACF Dropdown) and it has what it needs to ask. */
+export function hasRemoteOptions( field ) {
+	if ( ! field ) {
+		return false;
+	}
+	if ( field.type === 'json' ) {
+		return Boolean( field.source );
+	}
+	return field.type === 'acf' && Boolean( field.acfPostType && field.acfField );
 }
 
 /** A rules textarea's non-blank lines, trimmed. */
@@ -101,6 +114,9 @@ export function parseStaticOptions( textValue ) {
 
 /** Query string for the builder's options preview endpoint. */
 export function optionsQuery( field ) {
+	if ( field.type === 'acf' ) {
+		return new URLSearchParams( { acfPostType: field.acfPostType, acfField: field.acfField } ).toString();
+	}
 	const params = new URLSearchParams( { source: field.source } );
 	if ( field.itemsPath ) {
 		params.set( 'itemsPath', field.itemsPath );
