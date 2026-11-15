@@ -1,13 +1,18 @@
 <?php
 
 /**
- * Options for a Dropdown from an ACF field: the values of one field across every published post of one
- * post type.
+ * Options for a Dropdown fed from a post type: the values of one field across every
+ * published post of that post type.
  *
  * Each distinct value is one option, used as both value and label, in natural order.
- * Posts where the field is empty are skipped. The field is read with ACF's get_field()
- * when ACF is active, so formatted values (a Select's chosen label, a Post Object's
- * title, a Taxonomy's term names) come out readable; without ACF it is plain post meta.
+ * Posts where the field is empty are skipped. The field can be (see PostTypeFields):
+ *
+ * - one of the post's own fields (`post_title`, `post_name`, `post_excerpt`,
+ *   `post_date` as YYYY-MM-DD, `post_author` as the author's display name);
+ * - a taxonomy, `taxonomy:<name>`, where each of a post's terms is its own value;
+ * - anything else: read with ACF's get_field() when ACF is active, so formatted values
+ *   (a Select's chosen label, a Post Object's title, a Taxonomy field's term names) come
+ *   out readable; without ACF, or for a key that is not an ACF field, plain post meta.
  *
  * Built on the server when the page renders and again on submit, so a submitted value
  * must be one the field currently holds on some post.
@@ -18,6 +23,8 @@
 declare(strict_types=1);
 
 namespace DiviActiveForm\Form\Options;
+
+use DiviActiveForm\Form\PostTypeFields;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -56,10 +63,10 @@ final class AcfFieldOptions
             if ($postId <= 0) {
                 continue;
             }
-            $raw  = function_exists('get_field') ? get_field($fieldName, $postId) : get_post_meta($postId, $fieldName, true);
-            $text = self::text($raw);
-            if ('' !== $text) {
-                $values[ $text ] = true;
+            foreach (self::values($fieldName, $postId) as $text) {
+                if ('' !== $text) {
+                    $values[ $text ] = true;
+                }
             }
         }
 
@@ -75,6 +82,37 @@ final class AcfFieldOptions
         }
 
         return $options;
+    }
+
+    /**
+     * One post's value(s) for the field, as text.
+     *
+     * @return list<string>
+     */
+    private static function values(string $fieldName, int $postId): array
+    {
+        if (str_starts_with($fieldName, PostTypeFields::TAXONOMY_PREFIX)) {
+            $terms = wp_get_post_terms($postId, substr($fieldName, strlen(PostTypeFields::TAXONOMY_PREFIX)), [ 'fields' => 'names' ]);
+
+            return is_array($terms) ? array_values(array_map(static fn (mixed $term): string => self::text($term), $terms)) : [];
+        }
+
+        if (array_key_exists($fieldName, PostTypeFields::CORE)) {
+            $post = get_post($postId);
+            if (! $post instanceof \WP_Post) {
+                return [];
+            }
+
+            return [ match ($fieldName) {
+                'post_date'   => substr(self::text($post->post_date), 0, 10),
+                'post_author' => self::text(get_the_author_meta('display_name', (int) $post->post_author)),
+                default       => self::text($post->{$fieldName} ?? ''),
+            } ];
+        }
+
+        $raw = function_exists('get_field') ? get_field($fieldName, $postId) : get_post_meta($postId, $fieldName, true);
+
+        return [ self::text($raw) ];
     }
 
     /**

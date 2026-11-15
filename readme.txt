@@ -3,7 +3,7 @@ Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
 Stable tag: 1.4.2
-Build date: 2026/11/15 03:38:41
+Build date: 2026/11/15 03:45:23
 License: GPLv2 or later
 
 Divi 5 form builder: submissions create posts, with dropdowns filled from JSON.
@@ -15,7 +15,7 @@ Each submission creates a post of the type and status the form sets, saves each 
 post meta or ACF, and fires an after-insert action.
 
 Form Fields can be text, email, phone, paragraph, dropdown or checkbox. A dropdown's
-options are typed in, are the values of a field across a post type's posts, or come
+options are typed in, are the values of any field across a post type's posts, or come
 from a JSON source: a URL or a site REST path, such as the
 bundled sample
 /wp-json/divi-active-form/v1/example-options or /wp-json/wp/v2/categories.

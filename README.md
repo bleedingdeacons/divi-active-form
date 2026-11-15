@@ -54,7 +54,7 @@ switching its Type to a dropdown shows choices straight away. Replace them with 
 |---|---|---|
 | First Option Text | *(blank: the Placeholder, else `Choose an option`)* | The leading "nothing chosen" line |
 | Options | `small\|Small` · `medium\|Medium` · `large\|Large`, one per line | **Dropdown**: `value\|label`, or just a label |
-| Options From | Typed List | **Dropdown**: Typed List (the Options box), JSON Source or ACF Field |
+| Options From | Typed List | **Dropdown**: Typed List (the Options box), JSON Source or Post Type |
 | JSON Source | `/wp-json/divi-active-form/v1/example-options` | **Dropdown from a JSON source**: a sample list (below) |
 | Items Path | *(blank)* | Only when the list is nested, e.g. `data.items` |
 | Value Key | *(blank: tries `value`, `id`, `ID`, `slug`)* | e.g. `id` |
@@ -113,31 +113,36 @@ server against the submitted values, and they are part of the signed schema, so 
 visitor cannot get round them. Without JavaScript every field shows, and the server
 still ignores the ones whose rules fail.
 
-## Dropdowns from an ACF field
+## Dropdowns from a post type
 
-Set a Dropdown's **Options From** to **ACF Field** and it lists the values one field
+Set a Dropdown's **Options From** to **Post Type** and it lists the values one field
 holds across the published posts of one post type. (Forms saved while this was a
 separate ACF Dropdown type keep working unchanged.) Set two more things under
 **Dropdown Options**:
 
-- **ACF Post Type**: ▾ lists the site's post types; or type one.
-- **ACF Field**: ▾ lists the fields on the chosen post type: the ACF fields in field
-  groups assigned to it, then the post meta keys its posts use (for fields that are not
-  ACF, such as 12 Step Meeting List's group details). Keys starting with `_` are left
-  out. Any field name can still be typed. With no post type chosen it lists every ACF
-  field. The list comes from the editors-only `GET /v1/fields?postType=…` (filter
+- **Post Type**: ▾ lists the site's post types; or type one.
+- **Field**: ▾ lists every field on the chosen post type, in this order:
+  - its own fields: Title, Slug and Date, and Excerpt and Author where the post type
+    supports them;
+  - its taxonomies (Categories, Tags, ...), where each of a post's terms is one option;
+  - its ACF fields, from the field groups assigned to it;
+  - every other post meta key its posts use (for fields that are not ACF, such as 12
+    Step Meeting List's group details). Keys starting with `_` are WordPress's and
+    plugins' private bookkeeping, not fields, and are left out.
+
+  Any field name can still be typed. With no post type chosen it lists every ACF field.
+  The list comes from the editors-only `GET /v1/fields?postType=…` (filter
   `divi_active_form/post_type_fields`).
 
 Each distinct value is one option, used as both the value saved and the label shown,
-in natural order. Posts where the field is empty are skipped. With ACF active the
-field is read with `get_field()`, so formatted values come out readable: a Select's
-label, a Post Object's title, a Taxonomy's term names, a multi-value field's values
-joined with commas.
+in natural order. Posts where the field is empty are skipped. A Date is YYYY-MM-DD and
+an Author is their display name. With ACF active, ACF fields are read with
+`get_field()`, so formatted values come out readable: a Select's label, a Post Object's
+title, a Taxonomy field's term names, a multi-value field's values joined with commas.
 
 The list is built on the server when the page renders, and again when the form is
 sent, so a submitted value must be one the field holds on some published post. The
-builder previews it through the editors-only `/v1/options` route. The field suggestions
-can be changed with the `divi_active_form/acf_fields` filter.
+builder previews it through the editors-only `/v1/options` route.
 
 ## Dropdowns from a JSON source
 

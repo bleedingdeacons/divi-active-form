@@ -72,6 +72,42 @@ describe('AcfFieldOptions', function (): void {
     });
 });
 
+describe('AcfFieldOptions on post fields and taxonomies', function (): void {
+    beforeEach(function (): void {
+        Functions\when('post_type_exists')->justReturn(true);
+        Functions\when('get_posts')->justReturn([ 20, 21, 22 ]);
+    });
+
+    it('reads the post\'s own fields, with dates as YYYY-MM-DD and authors by name', function (): void {
+        $posts = [
+            20 => [ 'post_title' => 'Bath Tuesday', 'post_date' => '2026-11-03 19:30:00', 'post_author' => 1 ],
+            21 => [ 'post_title' => 'Bristol Friday', 'post_date' => '2026-11-03 10:00:00', 'post_author' => 2 ],
+            22 => [ 'post_title' => '', 'post_date' => '2026-12-01 09:00:00', 'post_author' => 2 ],
+        ];
+        Functions\when('get_post')->alias(static function (int $id) use ($posts): WP_Post {
+            $post = new WP_Post();
+            foreach ($posts[ $id ] as $key => $value) {
+                $post->{$key} = $value;
+            }
+
+            return $post;
+        });
+        Functions\when('get_the_author_meta')->alias(static fn (string $field, int $id): string => [ 1 => 'Ann', 2 => 'Bob' ][ $id ]);
+
+        expect(array_column(AcfFieldOptions::options('tsml_group', 'post_title'), 'value'))->toBe([ 'Bath Tuesday', 'Bristol Friday' ])
+            ->and(array_column(AcfFieldOptions::options('tsml_group', 'post_date'), 'value'))->toBe([ '2026-11-03', '2026-12-01' ])
+            ->and(array_column(AcfFieldOptions::options('tsml_group', 'post_author'), 'value'))->toBe([ 'Ann', 'Bob' ]);
+    });
+
+    it('lists each term of a taxonomy once, across every post', function (): void {
+        Functions\when('wp_get_post_terms')->alias(static fn (int $id, string $taxonomy): array => 'category' === $taxonomy
+            ? [ 20 => [ 'News', 'Events' ], 21 => [ 'News' ], 22 => [] ][ $id ]
+            : []);
+
+        expect(array_column(AcfFieldOptions::options('post', 'taxonomy:category'), 'value'))->toBe([ 'Events', 'News' ]);
+    });
+});
+
 describe('ACF Dropdown rendering', function (): void {
     it('renders a select with the options, and flags an empty one', function (): void {
         $field = new FieldDefinition('region', 'Region', FieldType::Acf, placeholder: 'Choose a region', acfPostType: 'project', acfField: 'region');

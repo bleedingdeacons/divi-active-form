@@ -138,7 +138,7 @@
               "groupSlug": "contentField",
               "attrName": "fieldItem.advanced.type",
               "label": "Type",
-              "description": "What kind of input this is. A Dropdown takes its options from a typed list, a JSON source or an ACF field (Options From, under Dropdown Options).",
+              "description": "What kind of input this is. A Dropdown takes its options from a typed list, a JSON source or the posts of a post type (Options From, under Dropdown Options).",
               "priority": 20,
               "render": true,
               "features": {
@@ -526,8 +526,8 @@
             "item": {
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.acfPostType",
-              "label": "ACF Post Type",
-              "description": "Dropdown with Options From set to ACF Field: the post type whose published posts are read. ▾ lists the site's post types.",
+              "label": "Post Type",
+              "description": "Dropdown with Options From set to Post Type: the post type whose published posts are read. ▾ lists the site's post types.",
               "priority": 70,
               "render": true,
               "features": {
@@ -547,8 +547,8 @@
             "item": {
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.acfField",
-              "label": "ACF Field",
-              "description": "Dropdown with Options From set to ACF Field: the field whose values become the options, by field name. ▾ lists the site's ACF fields; plain post meta keys can be typed too. Each distinct value appears once, and the value is what is saved.",
+              "label": "Field",
+              "description": "Dropdown with Options From set to Post Type: the field whose values become the options. ▾ lists every field on the chosen post type: its own fields (Title, Slug, Date, ...), its taxonomies, its ACF fields and the post meta its posts use. Any field name can be typed. Each distinct value appears once, and the value is what is saved.",
               "priority": 80,
               "render": true,
               "features": {
@@ -569,7 +569,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.optionsFrom",
               "label": "Options From",
-              "description": "Dropdown only: where its options come from. Typed List uses Options below; JSON Source uses JSON Source, Items Path, Value Key and Label Key; ACF Field lists the values of a field across the posts of a post type (ACF Post Type and ACF Field).",
+              "description": "Dropdown only: where its options come from. Typed List uses Options below; JSON Source uses JSON Source, Items Path, Value Key and Label Key; Post Type lists the values of one field across the posts of a post type (Post Type and Field).",
               "priority": 15,
               "render": true,
               "features": {
@@ -590,7 +590,7 @@
                       "label": "JSON Source"
                     },
                     "acf": {
-                      "label": "ACF Field"
+                      "label": "Post Type"
                     }
                   }
                 }

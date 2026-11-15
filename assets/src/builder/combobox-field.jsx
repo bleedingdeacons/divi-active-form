@@ -8,11 +8,12 @@
  * with Divi's field library under these names:
  *
  *   divi-active-form/post-type  post types (PostTypes::options()): the Divi Active
- *                               Form's Post Type, and a Form Field's ACF Post Type
+ *                               Form's Post Type, and a Form Field's Post Type
  *   divi-active-form/acf-field  the fields on the post type chosen in the same Form
- *                               Field's ACF Post Type (GET /v1/fields: its ACF fields
- *                               and the post meta keys its posts use), or every ACF
- *                               field when none is chosen (AcfFields::options())
+ *                               Field's Post Type (GET /v1/fields: its own fields,
+ *                               taxonomies, ACF fields and the post meta keys its
+ *                               posts use), or every ACF field when none is chosen
+ *                               (AcfFields::options())
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelect } from '@divi/data';
@@ -161,9 +162,10 @@ const usePostTypes = () => ( { options: useMemo( () => builderList( 'postTypes' 
 const fieldsCache = new Map();
 
 /**
- * The fields for the post type chosen in this same Form Field's ACF Post Type: its ACF
- * fields and the post meta keys its posts use, from /v1/fields. With no post type
- * chosen, every ACF field on the site, from the builder data.
+ * Every field on the post type chosen in this same Form Field's Post Type (its own
+ * fields, taxonomies, ACF fields and the post meta keys its posts use), from
+ * /v1/fields. With no post type chosen, every ACF field on the site, from the builder
+ * data.
  */
 const usePostTypeFields = () => {
 	const id = useCurrentModuleId();
@@ -231,7 +233,7 @@ export const PostTypeField = makeComboboxField( {
 export const AcfFieldField = makeComboboxField( {
 	useOptions: usePostTypeFields,
 	placeholder: 'e.g. region',
-	listLabel: 'Show the fields on this post type',
+	listLabel: 'Show every field on this post type',
 	unknown: ( text, postType ) =>
 		postType
 			? `No ${ postType } post uses “${ text }” yet, so the dropdown will be empty until one does.`

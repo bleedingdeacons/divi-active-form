@@ -1,14 +1,20 @@
 <?php
 
 /**
- * The fields a Dropdown from an ACF field can read on one post type, for the builder's
- * ACF Field picker:
+ * Every field a Dropdown fed from a post type can read, for the builder's Source Field
+ * picker, in this order:
  *
+ * - the post's own fields (CORE): Title, Slug and Date, and Excerpt and Author where the
+ *   post type supports them, named by their WP_Post property (`post_title`, ...);
+ * - its taxonomies, as `taxonomy:<name>`, whose options are the posts' term names;
  * - ACF fields in the field groups whose location rules include that post type, as
  *   "Label (name) · Group";
- * - then the post meta keys posts of that type actually use, as "name (post meta)", for
+ * - then every other post meta key posts of that type use, as "name (post meta)", for
  *   fields that are not ACF (12 Step Meeting List keeps a group's details this way).
- *   Keys starting with `_` are WordPress's and plugins' private meta, and are left out.
+ *   Keys starting with `_` are WordPress's and plugins' private bookkeeping (edit locks,
+ *   ACF's field references), not fields, and are left out.
+ *
+ * AcfFieldOptions reads each kind.
  *
  * Only suggestions: any field name can still be typed. Filter:
  * `divi_active_form/post_type_fields`.
@@ -29,6 +35,22 @@ final class PostTypeFields
     /** At most this many meta keys are listed. */
     private const MAX_META_KEYS = 200;
 
+    /** Taxonomy fields are named with this prefix and the taxonomy's name. */
+    public const TAXONOMY_PREFIX = 'taxonomy:';
+
+    /**
+     * The post's own fields: WP_Post property => [ label, the post type feature it needs ].
+     *
+     * @var array<string, array{0: string, 1: string}>
+     */
+    public const CORE = [
+        'post_title'   => [ 'Title', '' ],
+        'post_name'    => [ 'Slug', '' ],
+        'post_date'    => [ 'Date', '' ],
+        'post_excerpt' => [ 'Excerpt', 'excerpt' ],
+        'post_author'  => [ 'Author', 'author' ],
+    ];
+
     /**
      * @return list<array{value: string, label: string}>
      */
@@ -39,7 +61,7 @@ final class PostTypeFields
             return [];
         }
 
-        $options = self::acfFields($postType);
+        $options = self::coreFields($postType) + self::taxonomies($postType) + self::acfFields($postType);
         foreach (self::metaKeys($postType) as $key) {
             if (! isset($options[ $key ])) {
                 $options[ $key ] = [
@@ -51,7 +73,7 @@ final class PostTypeFields
         $options = array_values($options);
 
         /**
-         * Filters the fields the builder's ACF Field picker offers for one post type.
+         * Filters the fields the builder's Source Field picker offers for one post type.
          *
          * @param list<array{value: string, label: string}> $options
          * @param string                                    $postType
@@ -72,6 +94,49 @@ final class PostTypeFields
         }
 
         return $clean;
+    }
+
+    /**
+     * The post's own fields this post type has.
+     *
+     * @return array<string, array{value: string, label: string}>
+     */
+    private static function coreFields(string $postType): array
+    {
+        $fields = [];
+        foreach (self::CORE as $name => [ $label, $feature ]) {
+            if ('' === $feature || post_type_supports($postType, $feature)) {
+                $fields[ $name ] = [
+                    'value' => $name,
+                    'label' => sprintf('%s (%s)', $label, $name),
+                ];
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
+     * The taxonomies attached to this post type that are public or have an admin screen.
+     *
+     * @return array<string, array{value: string, label: string}>
+     */
+    private static function taxonomies(string $postType): array
+    {
+        $fields = [];
+        foreach (get_object_taxonomies($postType, 'objects') as $name => $taxonomy) {
+            if (! $taxonomy->public && ! $taxonomy->show_ui) {
+                continue;
+            }
+            $value            = self::TAXONOMY_PREFIX . $name;
+            $label            = '' !== $taxonomy->label ? $taxonomy->label : (string) $name;
+            $fields[ $value ] = [
+                'value' => $value,
+                'label' => sprintf('%s (taxonomy)', $label),
+            ];
+        }
+
+        return $fields;
     }
 
     /**

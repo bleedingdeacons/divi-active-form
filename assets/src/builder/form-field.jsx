@@ -82,7 +82,7 @@ const JsonStatus = ( { field, json } ) => {
 		return <Note>Options From is JSON Source: set a JSON Source under Dropdown Options.</Note>;
 	}
 	if ( field.type === 'acf' && ! ( field.acfPostType && field.acfField ) ) {
-		return <Note>Options From is ACF Field: set an ACF Post Type and ACF Field under Dropdown Options.</Note>;
+		return <Note>Options From is Post Type: set a Post Type and Field under Dropdown Options.</Note>;
 	}
 	if ( json.status === 'loading' ) {
 		return <Note>Loading options…</Note>;
