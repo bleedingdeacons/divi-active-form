@@ -57,6 +57,7 @@ export function fieldFromAttrs( attrs ) {
 		hint: text( read( 'hint.advanced.text' ) ),
 		acfPostType: setting( 'acfPostType' ).toLowerCase(),
 		acfField: setting( 'acfField' ),
+		acfValue: setting( 'acfValue' ) === 'id' ? 'id' : 'field',
 		hintPosition: text( read( 'hint.advanced.position' ) ) === 'above' ? 'above' : 'below',
 		options: typeof read( 'fieldItem.advanced.options' ) === 'string' ? read( 'fieldItem.advanced.options' ) : '',
 		source: setting( 'source' ),
@@ -119,7 +120,11 @@ export function parseStaticOptions( textValue ) {
 /** Query string for the builder's options preview endpoint. */
 export function optionsQuery( field ) {
 	if ( field.type === 'acf' ) {
-		return new URLSearchParams( { acfPostType: field.acfPostType, acfField: field.acfField } ).toString();
+		const params = new URLSearchParams( { acfPostType: field.acfPostType, acfField: field.acfField } );
+		if ( field.acfValue === 'id' ) {
+			params.set( 'acfValue', 'id' );
+		}
+		return params.toString();
 	}
 	const params = new URLSearchParams( { source: field.source } );
 	if ( field.itemsPath ) {

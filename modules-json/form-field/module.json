@@ -85,6 +85,11 @@
             "desktop": {
               "value": "list"
             }
+          },
+          "acfValue": {
+            "desktop": {
+              "value": "field"
+            }
           }
         }
       },
@@ -548,7 +553,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.acfField",
               "label": "Field",
-              "description": "Dropdown with Options From set to Post Type: the field whose values become the options. ▾ lists every field on the chosen post type: its own fields (Title, Slug, Date, ...), its taxonomies, its ACF fields and the post meta its posts use. Any field name can be typed. Each distinct value appears once, and the value is what is saved.",
+              "description": "Dropdown with Options From set to Post Type: the field whose values become the options. ▾ lists every field on the chosen post type: its own fields (Title, Slug, Date, ...), its taxonomies, its ACF fields and the post meta its posts use. Any field name can be typed. Option Value says what is saved.",
               "priority": 80,
               "render": true,
               "features": {
@@ -560,6 +565,37 @@
               "component": {
                 "type": "field",
                 "name": "divi-active-form/acf-field"
+              }
+            }
+          },
+          "acfValue": {
+            "groupType": "group-item",
+            "item": {
+              "groupSlug": "contentOptions",
+              "attrName": "fieldItem.advanced.acfValue",
+              "label": "Option Value",
+              "description": "Dropdown with Options From set to Post Type: what each option saves. Field Value lists each distinct value of the Field once and saves that value. Post ID lists every post whose Field is not empty, shows the Field and saves the post's ID.",
+              "priority": 85,
+              "render": true,
+              "features": {
+                "hover": false,
+                "sticky": false,
+                "responsive": false,
+                "preset": "content"
+              },
+              "component": {
+                "type": "field",
+                "name": "divi/select",
+                "props": {
+                  "options": {
+                    "field": {
+                      "label": "Field Value"
+                    },
+                    "id": {
+                      "label": "Post ID"
+                    }
+                  }
+                }
               }
             }
           },

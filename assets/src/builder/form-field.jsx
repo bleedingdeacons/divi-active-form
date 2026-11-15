@@ -91,7 +91,10 @@ const JsonStatus = ( { field, json } ) => {
 		return <Note>{ `Could not load options: ${ json.message }` }</Note>;
 	}
 	if ( json.status === 'ready' ) {
-		const from = field.type === 'acf' ? `${ field.acfField } on ${ field.acfPostType }` : field.source;
+		const from =
+			field.type === 'acf'
+				? `${ field.acfField } on ${ field.acfPostType }${ field.acfValue === 'id' ? ', saving post IDs' : '' }`
+				: field.source;
 		return <Note>{ `${ json.options.length } option${ json.options.length === 1 ? '' : 's' } from ${ from }` }</Note>;
 	}
 	return null;

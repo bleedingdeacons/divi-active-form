@@ -15,7 +15,7 @@ Each submission creates a post of the type and status the form sets, saves each 
 post meta or ACF, and fires an after-insert action.
 
 Form Fields can be text, email, phone, paragraph, dropdown or checkbox. A dropdown's
-options are typed in, are the values of any field across a post type's posts, or come
+options are typed in, are the values of any field across a post type's posts (or those posts' IDs), or come
 from a JSON source: a URL or a site REST path, such as the
 bundled sample
 /wp-json/divi-active-form/v1/example-options or /wp-json/wp/v2/categories.

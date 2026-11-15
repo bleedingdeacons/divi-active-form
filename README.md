@@ -117,7 +117,7 @@ still ignores the ones whose rules fail.
 
 Set a Dropdown's **Options From** to **Post Type** and it lists the values one field
 holds across the published posts of one post type. (Forms saved while this was a
-separate ACF Dropdown type keep working unchanged.) Set two more things under
+separate ACF Dropdown type keep working unchanged.) Set three more things under
 **Dropdown Options**:
 
 - **Post Type**: ▾ lists the site's post types; or type one.
@@ -134,14 +134,21 @@ separate ACF Dropdown type keep working unchanged.) Set two more things under
   The list comes from the editors-only `GET /v1/fields?postType=…` (filter
   `divi_active_form/post_type_fields`).
 
-Each distinct value is one option, used as both the value saved and the label shown,
-in natural order. Posts where the field is empty are skipped. A Date is YYYY-MM-DD and
+- **Option Value**: what each option saves.
+  - **Field Value** (the default): each distinct value is one option, used as both the
+    value saved and the label shown, in natural order.
+  - **Post ID**: each post is one option. It shows the field (several values joined with
+    commas) and saves the post's ID, ordered by what it shows. Use it to link a
+    submission to a post, for example Field set to Title.
+
+Posts where the field is empty are skipped. A Date is YYYY-MM-DD and
 an Author is their display name. With ACF active, ACF fields are read with
 `get_field()`, so formatted values come out readable: a Select's label, a Post Object's
 title, a Taxonomy field's term names, a multi-value field's values joined with commas.
 
 The list is built on the server when the page renders, and again when the form is
-sent, so a submitted value must be one the field holds on some published post. The
+sent, so a submitted value must be one the field holds on some published post (or,
+by Post ID, the ID of a published post whose field is not empty). The
 builder previews it through the editors-only `/v1/options` route.
 
 ## Dropdowns from a JSON source

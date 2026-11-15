@@ -68,9 +68,9 @@ final class FieldOptions implements OptionProvider
      */
     private function acf(FieldDefinition $field): array
     {
-        $key = $field->acfPostType . '|' . $field->acfField;
+        $key = $field->acfPostType . '|' . $field->acfField . '|' . $field->acfValue;
         if (! array_key_exists($key, $this->acfOptions)) {
-            $this->acfOptions[ $key ] = AcfFieldOptions::options($field->acfPostType, $field->acfField);
+            $this->acfOptions[ $key ] = AcfFieldOptions::options($field->acfPostType, $field->acfField, $field->valuesArePostIds());
         }
 
         return $this->acfOptions[ $key ];

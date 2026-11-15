@@ -33,6 +33,17 @@ describe('AcfFieldOptions', function (): void {
         ]);
     });
 
+    it('lists one option per post by ID, labelled with the field, skipping posts where it is empty', function (): void {
+        dafRegions();
+
+        expect(AcfFieldOptions::options('project', 'region', true))->toBe([
+            [ 'value' => '11', 'label' => 'Bath' ],
+            [ 'value' => '10', 'label' => 'Bristol' ],
+            [ 'value' => '13', 'label' => 'bristol' ],
+            [ 'value' => '14', 'label' => 'Bristol' ],
+        ]);
+    });
+
     it('reads published posts of the chosen post type', function (): void {
         dafRegions();
         AcfFieldOptions::options('project', 'region');
@@ -157,5 +168,16 @@ describe('AcfFields', function (): void {
         Functions\when('acf_get_field_groups')->justReturn(null);
 
         expect(AcfFields::options())->toBe([]);
+    });
+});
+
+describe('Option Value', function (): void {
+    it('keeps Post ID through the signed schema and treats anything else as Field Value', function (): void {
+        $field = FieldDefinition::fromArray([ 'name' => 'project', 'label' => 'Project', 'type' => 'acf', 'acfPostType' => 'project', 'acfField' => 'post_title', 'acfValue' => 'id' ]);
+
+        expect($field->valuesArePostIds())->toBeTrue()
+            ->and(FieldDefinition::fromArray($field->toArray())->acfValue)->toBe('id')
+            ->and(FieldDefinition::fromArray([ 'name' => 'r', 'acfValue' => 'slug' ])->acfValue)->toBe('field')
+            ->and(FieldDefinition::fromArray([ 'name' => 'r' ])->valuesArePostIds())->toBeFalse();
     });
 });

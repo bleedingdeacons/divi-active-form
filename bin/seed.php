@@ -198,6 +198,20 @@ $daf_fields = $daf_field(
 			'placeholder' => 'Choose a region',
 		]
 	)
+	// A Dropdown from a post type by post ID: one option per Project, showing its title
+	// and saving its ID.
+	. $daf_field(
+		'Project',
+		[
+			'name'        => 'project',
+			'type'        => 'select',
+			'optionsFrom' => 'acf',
+			'acfPostType' => 'project',
+			'acfField'    => 'post_title',
+			'acfValue'    => 'id',
+			'placeholder' => 'Choose a project',
+		]
+	)
 	// Conditional Logic: shown only for one dropdown choice. Its label is hidden (still
 	// read by screen readers); the placeholder says what it is for.
 	. $daf_field(

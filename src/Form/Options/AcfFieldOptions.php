@@ -4,7 +4,9 @@
  * Options for a Dropdown fed from a post type: the values of one field across every
  * published post of that post type.
  *
- * Each distinct value is one option, used as both value and label, in natural order.
+ * By default each distinct value is one option, used as both value and label, in
+ * natural order. With $byPostId each post is one option instead: its ID is the value
+ * and its field value the label (several values joined with commas), ordered by label.
  * Posts where the field is empty are skipped. The field can be (see PostTypeFields):
  *
  * - one of the post's own fields (`post_title`, `post_name`, `post_excerpt`,
@@ -15,7 +17,8 @@
  *   out readable; without ACF, or for a key that is not an ACF field, plain post meta.
  *
  * Built on the server when the page renders and again on submit, so a submitted value
- * must be one the field currently holds on some post.
+ * must be one the field currently holds on some post (or, by post ID, the ID of a
+ * published post whose field is not empty).
  *
  * @package DiviActiveForm
  */
@@ -38,7 +41,7 @@ final class AcfFieldOptions
     /**
      * @return list<array{value: string, label: string}>
      */
-    public static function options(string $postType, string $fieldName): array
+    public static function options(string $postType, string $fieldName, bool $byPostId = false): array
     {
         $postType  = sanitize_key($postType);
         $fieldName = trim($fieldName);
@@ -58,9 +61,17 @@ final class AcfFieldOptions
         );
 
         $values = [];
+        $byPost = [];
         foreach ($posts as $post) {
             $postId = $post instanceof \WP_Post ? $post->ID : ( is_numeric($post) ? (int) $post : 0 );
             if ($postId <= 0) {
+                continue;
+            }
+            if ($byPostId) {
+                $label = implode(', ', array_filter(self::values($fieldName, $postId), static fn (string $s): bool => '' !== $s));
+                if ('' !== $label) {
+                    $byPost[ $postId ] = $label;
+                }
                 continue;
             }
             foreach (self::values($fieldName, $postId) as $text) {
@@ -68,6 +79,10 @@ final class AcfFieldOptions
                     $values[ $text ] = true;
                 }
             }
+        }
+
+        if ($byPostId) {
+            return self::postOptions($byPost);
         }
 
         $texts = array_map('strval', array_keys($values));
@@ -82,6 +97,29 @@ final class AcfFieldOptions
         }
 
         return $options;
+    }
+
+    /**
+     * One option per post, ordered by label (then ID, so equal labels keep a fixed order).
+     *
+     * @param array<int, string> $labels Post ID => label.
+     * @return list<array{value: string, label: string}>
+     */
+    private static function postOptions(array $labels): array
+    {
+        $ids = array_keys($labels);
+        usort(
+            $ids,
+            static fn (int $a, int $b): int => strnatcasecmp($labels[ $a ], $labels[ $b ]) ?: $a <=> $b
+        );
+
+        return array_map(
+            static fn (int $id): array => [
+                'value' => (string) $id,
+                'label' => $labels[ $id ],
+            ],
+            $ids
+        );
     }
 
     /**

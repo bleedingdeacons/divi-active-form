@@ -97,6 +97,7 @@ final class FormController
                     'source'    => [ 'type' => 'string' ],
                     'acfPostType' => [ 'type' => 'string' ],
                     'acfField'  => [ 'type' => 'string' ],
+                    'acfValue'  => [ 'type' => 'string' ],
                     'itemsPath' => [ 'type' => 'string' ],
                     'valueKey'  => [ 'type' => 'string' ],
                     'labelKey'  => [ 'type' => 'string' ],
@@ -145,6 +146,7 @@ final class FormController
                 type: FieldType::Acf,
                 acfPostType: $string('acfPostType'),
                 acfField: $string('acfField'),
+                acfValue: FieldDefinition::acfValue($string('acfValue')),
             );
 
             return new WP_REST_Response(

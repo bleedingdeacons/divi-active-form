@@ -31,6 +31,9 @@ final class FieldDefinition
     /** Where the hint sits relative to the input. */
     public const HINT_POSITIONS = [ 'below', 'above' ];
 
+    /** Dropdown from a post type: what each option's value is, the field's value or the post's ID. */
+    public const ACF_VALUES = [ 'field', 'id' ];
+
     /**
      * @param string $name        Meta / ACF field name the value is saved under; also the input name.
      * @param string $options     Select only: one option per line, `value|label` or just `label`.
@@ -45,6 +48,8 @@ final class FieldDefinition
      * @param string $hintPosition One of HINT_POSITIONS.
      * @param string $acfPostType Dropdown from an ACF field: the post type whose posts are read.
      * @param string $acfField    Dropdown from an ACF field: the field whose values become the options.
+     * @param string $acfValue    Dropdown from an ACF field: one of ACF_VALUES. `id` makes each post one
+     *                            option, its ID the value and the field the label.
      * @param Conditions $visibleWhen When the field is shown; hidden fields are not sent or saved.
      * @param Conditions $enabledWhen When the field can be filled in; disabled fields are not sent or saved.
      */
@@ -66,6 +71,7 @@ final class FieldDefinition
         public readonly string $hintPosition = 'below',
         public readonly string $acfPostType = '',
         public readonly string $acfField = '',
+        public readonly string $acfValue = 'field',
         public readonly Conditions $visibleWhen = new Conditions(),
         public readonly Conditions $enabledWhen = new Conditions(),
     ) {
@@ -101,6 +107,7 @@ final class FieldDefinition
             hintPosition: self::hintPosition(Attrs::string(Attrs::desktop($attrs, 'hint.advanced.position'))),
             acfPostType: sanitize_key($setting('acfPostType')),
             acfField: $setting('acfField'),
+            acfValue: self::acfValue($setting('acfValue')),
             visibleWhen: Conditions::parse(Attrs::string(Attrs::desktop($attrs, 'fieldItem.advanced.visibleRules')), $setting('visibleMatch')),
             enabledWhen: Conditions::parse(Attrs::string(Attrs::desktop($attrs, 'fieldItem.advanced.enabledRules')), $setting('enabledMatch')),
         );
@@ -199,6 +206,7 @@ final class FieldDefinition
             'hintPosition' => $this->hintPosition,
             'acfPostType' => $this->acfPostType,
             'acfField'    => $this->acfField,
+            'acfValue'    => $this->acfValue,
             'visibleWhen' => $this->visibleWhen->toArray(),
             'enabledWhen' => $this->enabledWhen->toArray(),
         ];
@@ -229,8 +237,25 @@ final class FieldDefinition
             hintPosition: self::hintPosition($string('hintPosition')),
             acfPostType: sanitize_key($string('acfPostType')),
             acfField: $string('acfField'),
+            acfValue: self::acfValue($string('acfValue')),
             visibleWhen: Conditions::fromArray($data['visibleWhen'] ?? null),
             enabledWhen: Conditions::fromArray($data['enabledWhen'] ?? null),
         );
+    }
+
+    /**
+     * One of ACF_VALUES; anything else is `field`.
+     */
+    public static function acfValue(string $value): string
+    {
+        return in_array($value, self::ACF_VALUES, true) ? $value : 'field';
+    }
+
+    /**
+     * Whether a Dropdown from a post type uses each post's ID as the option value.
+     */
+    public function valuesArePostIds(): bool
+    {
+        return 'id' === $this->acfValue;
     }
 }

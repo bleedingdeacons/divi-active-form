@@ -104,6 +104,14 @@ describe( 'ACF Dropdown settings', () => {
 		expect( Object.fromEntries( new URLSearchParams( optionsQuery( field ) ) ) ).toEqual( { acfPostType: 'project', acfField: 'daf_region' } );
 	} );
 
+	it( 'asks for post IDs when Option Value is Post ID', () => {
+		const field = fieldFromAttrs( attrs( 'Project', { type: 'acf', acfPostType: 'project', acfField: 'post_title', acfValue: 'id' } ) );
+
+		expect( field.acfValue ).toBe( 'id' );
+		expect( Object.fromEntries( new URLSearchParams( optionsQuery( field ) ) ) ).toEqual( { acfPostType: 'project', acfField: 'post_title', acfValue: 'id' } );
+		expect( fieldFromAttrs( attrs( 'Region', { type: 'acf', acfValue: 'slug' } ) ).acfValue ).toBe( 'field' );
+	} );
+
 	it( 'asks for nothing until both are set', () => {
 		expect( hasRemoteOptions( fieldFromAttrs( attrs( 'Region', { type: 'acf', acfPostType: 'project' } ) ) ) ).toBe( false );
 		expect( hasRemoteOptions( fieldFromAttrs( attrs( 'Region', { type: 'text' } ) ) ) ).toBe( false );
