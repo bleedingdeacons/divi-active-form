@@ -43,8 +43,8 @@ final class FieldDefinition
      * @param string $labelPosition One of LABEL_POSITIONS.
      * @param string $hint        Helper text shown with the field; blank for none.
      * @param string $hintPosition One of HINT_POSITIONS.
-     * @param string $acfPostType ACF Dropdown only: the post type whose posts are read.
-     * @param string $acfField    ACF Dropdown only: the field whose values become the options.
+     * @param string $acfPostType Dropdown from an ACF field: the post type whose posts are read.
+     * @param string $acfField    Dropdown from an ACF field: the field whose values become the options.
      * @param Conditions $visibleWhen When the field is shown; hidden fields are not sent or saved.
      * @param Conditions $enabledWhen When the field can be filled in; disabled fields are not sent or saved.
      */
@@ -119,14 +119,23 @@ final class FieldDefinition
 
     /**
      * The field's type from its Type and Options From settings. A Dropdown whose options
-     * come from a JSON source is handled as the JSON type from here on; so is a field
-     * saved before the two were merged, whose Type is still `json`.
+     * come from a JSON source is handled as the JSON type from here on, and one whose
+     * options come from an ACF field as the ACF type; so are fields saved before these
+     * were merged into Dropdown, whose Type is still `json` or `acf`.
      */
     public static function type(string $type, string $optionsFrom): FieldType
     {
         $parsed = FieldType::parse($type);
 
-        return FieldType::Select === $parsed && 'json' === $optionsFrom ? FieldType::Json : $parsed;
+        if (FieldType::Select !== $parsed) {
+            return $parsed;
+        }
+
+        return match ($optionsFrom) {
+            'json'  => FieldType::Json,
+            'acf'   => FieldType::Acf,
+            default => FieldType::Select,
+        };
     }
 
     /**

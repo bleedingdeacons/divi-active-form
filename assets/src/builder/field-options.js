@@ -41,8 +41,10 @@ export function fieldFromAttrs( attrs ) {
 	const setting = ( key ) => text( read( `fieldItem.advanced.${ key }` ) );
 	const label = stripTags( text( read( 'fieldItem.innerContent' ) ) ).trim();
 	const parsed = TYPES.includes( setting( 'type' ) ) ? setting( 'type' ) : 'text';
-	// A Dropdown fed from a JSON source is the JSON type, as FieldDefinition::type() has it.
-	const type = parsed === 'select' && setting( 'optionsFrom' ) === 'json' ? 'json' : parsed;
+	// A Dropdown fed from a JSON source or an ACF field is the JSON or ACF type, as
+	// FieldDefinition::type() has it.
+	const from = setting( 'optionsFrom' );
+	const type = parsed === 'select' && ( from === 'json' || from === 'acf' ) ? from : parsed;
 
 	return {
 		name: sanitizeName( setting( 'name' ) || label ),
@@ -69,7 +71,7 @@ export function fieldFromAttrs( attrs ) {
 	};
 }
 
-/** Whether a field's options come from the server (a JSON or an ACF Dropdown) and it has what it needs to ask. */
+/** Whether a field's options come from the server (a Dropdown fed from JSON or an ACF field) and it has what it needs to ask. */
 export function hasRemoteOptions( field ) {
 	if ( ! field ) {
 		return false;

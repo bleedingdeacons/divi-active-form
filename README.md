@@ -13,8 +13,8 @@ A Divi 5 form builder whose submissions become WordPress posts. It adds two modu
 - **Divi Active Form**: the form. Each submission creates a post of the type and status
   you choose. The default is a `post` held as Pending Review.
 - **Form Field**: one field. Add as many as you need. Each has a type: Text, Email,
-  Phone, Paragraph, **Dropdown** (options typed in, or from a JSON source), Checkbox,
-  or **ACF Dropdown** (options from a field's values across a post type).
+  Phone, Paragraph, **Dropdown** or Checkbox. A Dropdown's options are typed in, come
+  from a JSON source, or are a field's values across a post type (ACF).
 
 Requires **Divi 5** (developed against 5.19.0). PHP 8.1+. ACF is optional: with it, fields
 are saved through `update_field()`.
@@ -34,7 +34,7 @@ are saved through `update_field()`.
 2. Add **Form Fields**. Each one's **Field Name** is the post meta (or ACF field) the value
    is saved under; leave it blank to derive it from the label.
    - **Placeholder**: greyed hint text inside Text, Email, Phone and Paragraph
-     fields. A Dropdown or ACF Dropdown shows it as its first, "nothing chosen"
+     fields. A Dropdown shows it as its first, "nothing chosen"
      option unless First Option Text is set. A Checkbox has none.
    - **Hint** (its own group): helper text shown **Below** the input (the default)
      or **Above** it, in grey unless you pick a **Hint Colour**. It is linked to the
@@ -54,7 +54,7 @@ switching its Type to a dropdown shows choices straight away. Replace them with 
 |---|---|---|
 | First Option Text | *(blank: the Placeholder, else `Choose an option`)* | The leading "nothing chosen" line |
 | Options | `small\|Small` · `medium\|Medium` · `large\|Large`, one per line | **Dropdown**: `value\|label`, or just a label |
-| Options From | Typed List | **Dropdown**: Typed List (the Options box) or JSON Source |
+| Options From | Typed List | **Dropdown**: Typed List (the Options box), JSON Source or ACF Field |
 | JSON Source | `/wp-json/divi-active-form/v1/example-options` | **Dropdown from a JSON source**: a sample list (below) |
 | Items Path | *(blank)* | Only when the list is nested, e.g. `data.items` |
 | Value Key | *(blank: tries `value`, `id`, `ID`, `slug`)* | e.g. `id` |
@@ -90,7 +90,7 @@ Either way, a field whose rules fail is not sent, not required and not saved.
 In the editor, **+ Add rule** adds a row. Pick another field in this form, then a
 condition: *equals*, *does not equal*, *is empty* or *is not empty*. A checkbox has
 *is checked* / *is not checked* instead. Where a comparison needs a value, a Dropdown
-or ACF Dropdown field offers its own options to choose from; other fields take typed
+field offers its own options to choose from; other fields take typed
 text. **×** removes a rule.
 
 **Edit as text** shows the same rules as text, one per line, naming fields by their
@@ -113,10 +113,12 @@ server against the submitted values, and they are part of the signed schema, so 
 visitor cannot get round them. Without JavaScript every field shows, and the server
 still ignores the ones whose rules fail.
 
-## ACF Dropdowns
+## Dropdowns from an ACF field
 
-An **ACF Dropdown** lists the values one field holds across the published posts of
-one post type. Set two things under **Dropdown Options**:
+Set a Dropdown's **Options From** to **ACF Field** and it lists the values one field
+holds across the published posts of one post type. (Forms saved while this was a
+separate ACF Dropdown type keep working unchanged.) Set two more things under
+**Dropdown Options**:
 
 - **ACF Post Type**: ▾ lists the site's post types; or type one.
 - **ACF Field**: ▾ lists the site's ACF fields by name; or type a field name. A plain

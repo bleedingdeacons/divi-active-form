@@ -138,7 +138,7 @@
               "groupSlug": "contentField",
               "attrName": "fieldItem.advanced.type",
               "label": "Type",
-              "description": "What kind of input this is. A Dropdown takes its options from a typed list or a JSON source (Options From, under Dropdown Options); an ACF Dropdown lists the values of a field across the posts of a post type.",
+              "description": "What kind of input this is. A Dropdown takes its options from a typed list, a JSON source or an ACF field (Options From, under Dropdown Options).",
               "priority": 20,
               "render": true,
               "features": {
@@ -166,9 +166,6 @@
                     },
                     "select": {
                       "label": "Dropdown"
-                    },
-                    "acf": {
-                      "label": "ACF Dropdown"
                     },
                     "checkbox": {
                       "label": "Checkbox"
@@ -205,7 +202,7 @@
               "groupSlug": "contentField",
               "attrName": "fieldItem.advanced.placeholder",
               "label": "Placeholder",
-              "description": "Hint shown in the empty field. Text, Email, Phone and Paragraph fields show it greyed inside the box; a Dropdown or ACF Dropdown shows it as its first, 'nothing chosen' option unless First Option Text is set. A Checkbox has no placeholder.",
+              "description": "Hint shown in the empty field. Text, Email, Phone and Paragraph fields show it greyed inside the box; a Dropdown shows it as its first, 'nothing chosen' option unless First Option Text is set. A Checkbox has no placeholder.",
               "priority": 40,
               "render": true,
               "features": {
@@ -226,7 +223,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.emptyLabel",
               "label": "First Option Text",
-              "description": "Dropdown and ACF Dropdown: the leading 'nothing chosen' option, e.g. Choose a size. Leave blank to use the Placeholder, or 'Choose an option' when that is blank too.",
+              "description": "Dropdown: the leading 'nothing chosen' option, e.g. Choose a size. Leave blank to use the Placeholder, or 'Choose an option' when that is blank too.",
               "priority": 10,
               "render": true,
               "features": {
@@ -530,7 +527,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.acfPostType",
               "label": "ACF Post Type",
-              "description": "ACF Dropdown only: the post type whose published posts are read. ▾ lists the site's post types.",
+              "description": "Dropdown with Options From set to ACF Field: the post type whose published posts are read. ▾ lists the site's post types.",
               "priority": 70,
               "render": true,
               "features": {
@@ -551,7 +548,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.acfField",
               "label": "ACF Field",
-              "description": "ACF Dropdown only: the field whose values become the options, by field name. ▾ lists the site's ACF fields; plain post meta keys can be typed too. Each distinct value appears once, and the value is what is saved.",
+              "description": "Dropdown with Options From set to ACF Field: the field whose values become the options, by field name. ▾ lists the site's ACF fields; plain post meta keys can be typed too. Each distinct value appears once, and the value is what is saved.",
               "priority": 80,
               "render": true,
               "features": {
@@ -572,7 +569,7 @@
               "groupSlug": "contentOptions",
               "attrName": "fieldItem.advanced.optionsFrom",
               "label": "Options From",
-              "description": "Dropdown only: where its options come from. Typed List uses Options below; JSON Source uses JSON Source, Items Path, Value Key and Label Key.",
+              "description": "Dropdown only: where its options come from. Typed List uses Options below; JSON Source uses JSON Source, Items Path, Value Key and Label Key; ACF Field lists the values of a field across the posts of a post type (ACF Post Type and ACF Field).",
               "priority": 15,
               "render": true,
               "features": {
@@ -591,6 +588,9 @@
                     },
                     "json": {
                       "label": "JSON Source"
+                    },
+                    "acf": {
+                      "label": "ACF Field"
                     }
                   }
                 }

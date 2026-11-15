@@ -33,7 +33,7 @@ final class FieldOptions implements OptionProvider
     /** @var array<string, mixed> Decoded documents, per request. */
     private array $documents = [];
 
-    /** @var array<string, list<array{value: string, label: string}>> ACF Dropdown options, per request. */
+    /** @var array<string, list<array{value: string, label: string}>> ACF field options, per request. */
     private array $acfOptions = [];
 
     public function options(FieldDefinition $field): array
@@ -62,7 +62,7 @@ final class FieldOptions implements OptionProvider
     }
 
     /**
-     * An ACF Dropdown's options, read once per request for each post type and field.
+     * Options from an ACF field, read once per request for each post type and field.
      *
      * @return list<array{value: string, label: string}>
      */

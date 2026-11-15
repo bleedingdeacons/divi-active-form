@@ -84,8 +84,8 @@ foreach ( [ 'Sample: News', 'Sample: Events', 'Sample: Notices' ] as $daf_name )
 }
 WP_CLI::log( 'Created 3 sample categories.' );
 
-// An ACF field on Projects, and sample Projects with values in it, for the demo's ACF
-// Dropdown. Two projects share a region, to show each value is listed once.
+// An ACF field on Projects, and sample Projects with values in it, for the demo's Region
+// dropdown. Two projects share a region, to show each value is listed once.
 if ( function_exists( 'acf_import_field_group' ) && post_type_exists( 'project' ) ) {
 	acf_import_field_group(
 		[
@@ -118,7 +118,7 @@ if ( function_exists( 'acf_import_field_group' ) && post_type_exists( 'project' 
 	}
 	WP_CLI::log( 'Created the demo ACF field (daf_region on Projects) and 4 sample projects.' );
 } else {
-	WP_CLI::warning( 'ACF or the Project post type is missing, so the demo ACF Dropdown will be empty.' );
+	WP_CLI::warning( 'ACF or the Project post type is missing, so the demo Region dropdown will be empty.' );
 }
 
 $daf_version = defined( 'ET_BUILDER_PRODUCT_VERSION' ) ? ET_BUILDER_PRODUCT_VERSION : '5.0.0';
@@ -186,12 +186,13 @@ $daf_fields = $daf_field(
 			'emptyLabel'  => 'Choose a colour',
 		]
 	)
-	// An ACF Dropdown: the values of the daf_region field across published Projects.
+	// A Dropdown from an ACF field: the values of daf_region across published Projects.
 	. $daf_field(
 		'Region',
 		[
 			'name'        => 'region',
-			'type'        => 'acf',
+			'type'        => 'select',
+			'optionsFrom' => 'acf',
 			'acfPostType' => 'project',
 			'acfField'    => 'daf_region',
 			'placeholder' => 'Choose a region',

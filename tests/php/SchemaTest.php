@@ -77,6 +77,9 @@ describe('FieldDefinition', function (): void {
             ->and(FieldDefinition::type('select', ''))->toBe(FieldType::Select)
             ->and(FieldDefinition::type('json', ''))->toBe(FieldType::Json)
             ->and(FieldDefinition::type('text', 'json'))->toBe(FieldType::Text)
+            ->and(FieldDefinition::type('select', 'acf'))->toBe(FieldType::Acf)
+            ->and(FieldDefinition::type('acf', ''))->toBe(FieldType::Acf)
+            ->and(FieldDefinition::type('select', 'other'))->toBe(FieldType::Select)
             ->and(FieldDefinition::fromAttrs(dafField('Colour', [ 'type' => 'select', 'optionsFrom' => 'json', 'source' => '/x' ]))->type)
             ->toBe(FieldType::Json);
     });

@@ -1,5 +1,5 @@
 /**
- * A JSON or ACF Dropdown's options in the builder, fetched through divi-active-form/v1/options so
+ * A Dropdown's JSON or ACF field options in the builder, fetched through divi-active-form/v1/options so
  * they are read exactly as the server reads them (same normalising, same fallbacks).
  * Shared by the field preview and the Conditional Logic rule editor.
  */

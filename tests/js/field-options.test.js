@@ -116,5 +116,7 @@ describe( 'Dropdown Options From', () => {
 		expect( fieldFromAttrs( attrs( 'Colour', { type: 'select', optionsFrom: 'list' } ) ).type ).toBe( 'select' );
 		expect( fieldFromAttrs( attrs( 'Colour', { type: 'select' } ) ).type ).toBe( 'select' );
 		expect( fieldFromAttrs( attrs( 'Colour', { type: 'json', source: '/x' } ) ).type ).toBe( 'json' );
+		expect( fieldFromAttrs( attrs( 'Region', { type: 'select', optionsFrom: 'acf', acfPostType: 'project', acfField: 'r' } ) ).type ).toBe( 'acf' );
+		expect( fieldFromAttrs( attrs( 'Region', { type: 'acf' } ) ).type ).toBe( 'acf' );
 	} );
 } );

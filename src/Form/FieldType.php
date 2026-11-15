@@ -23,6 +23,7 @@ enum FieldType: string
     case Select   = 'select';
     /** A Dropdown whose options come from a JSON source (Options From: JSON Source). */
     case Json     = 'json';
+    /** A Dropdown whose options are an ACF field's values (Options From: ACF Field). */
     case Acf      = 'acf';
     case Checkbox = 'checkbox';
 

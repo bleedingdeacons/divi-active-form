@@ -1,7 +1,7 @@
 <?php
 
 /**
- * An ACF Dropdown's options: the values of one field across every published post of one
+ * Options for a Dropdown from an ACF field: the values of one field across every published post of one
  * post type.
  *
  * Each distinct value is one option, used as both value and label, in natural order.
