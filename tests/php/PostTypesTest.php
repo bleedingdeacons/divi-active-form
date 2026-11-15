@@ -6,10 +6,12 @@ use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use DiviActiveForm\Form\PostTypes;
 
-function dafPostType(string $name, string $label): WP_Post_Type
+function dafPostType(string $name, string $label, bool $public = true, bool $showUi = true): WP_Post_Type
 {
-    $type        = new WP_Post_Type($name);
-    $type->label = $label;
+    $type          = new WP_Post_Type($name);
+    $type->label   = $label;
+    $type->public  = $public;
+    $type->show_ui = $showUi;
 
     return $type;
 }
@@ -24,13 +26,18 @@ describe('PostTypes::options', function (): void {
             'acf-field-group' => dafPostType('acf-field-group', 'Field Groups'),
             'et_pb_layout'  => dafPostType('et_pb_layout', 'Layouts'),
             'answer'        => dafPostType('answer', 'Answers'),
+            'tsml_group'    => dafPostType('tsml_group', 'Groups', true, false),
+            'internal_log'  => dafPostType('internal_log', 'Log', false, false),
+            'admin_only'    => dafPostType('admin_only', 'Admin Only', false, true),
             'nameless_type' => dafPostType('nameless_type', ''),
         ]);
     });
 
-    it('lists content post types with an admin screen as "Label (name)", by label', function (): void {
+    it('lists public or admin-screen content post types as "Label (name)", by label', function (): void {
         expect(PostTypes::options())->toBe([
+            [ 'value' => 'admin_only', 'label' => 'Admin Only (admin_only)' ],
             [ 'value' => 'answer', 'label' => 'Answers (answer)' ],
+            [ 'value' => 'tsml_group', 'label' => 'Groups (tsml_group)' ],
             [ 'value' => 'nameless_type', 'label' => 'nameless_type (nameless_type)' ],
             [ 'value' => 'page', 'label' => 'Pages (page)' ],
             [ 'value' => 'post', 'label' => 'Posts (post)' ],

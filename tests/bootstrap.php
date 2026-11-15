@@ -34,8 +34,8 @@ if (!defined('ABSPATH')) {
     define('ABSPATH', sys_get_temp_dir() . '/divi-active-form-test-wp/');
 }
 
-// wp-mocks has no WP_Post_Type. PostTypes reads only its name and label, so this
-// double carries just those, with WordPress's constructor signature.
+// wp-mocks has no WP_Post_Type. PostTypes reads only its name, label, public and
+// show_ui, so this double carries just those, with WordPress's constructor signature.
 if (!class_exists('WP_Post_Type')) {
     // phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses
     final class WP_Post_Type
@@ -43,6 +43,10 @@ if (!class_exists('WP_Post_Type')) {
         public string $name;
 
         public string $label = '';
+
+        public bool $public = false;
+
+        public bool $show_ui = false;
 
         /** @param array<string, mixed> $args */
         public function __construct(string $post_type, array $args = [])

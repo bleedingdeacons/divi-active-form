@@ -4,8 +4,11 @@
  * The post types a Divi Active Form can save submissions as, for the builder's Post Type
  * dropdown.
  *
- * Every post type with an admin screen (`show_ui`), so custom post types are listed
- * whether or not they are exposed to the REST API. Left out are attachments, and the
+ * Every post type that is public or has an admin screen (`show_ui`), so custom post
+ * types are listed whether or not they are exposed to the REST API, and public ones
+ * edited elsewhere are too (12 Step Meeting List's `tsml_group` and `tsml_location`
+ * have no screen of their own). Hidden internal types stay out. Left out too are
+ * attachments, and the
  * types that hold configuration rather than content: WordPress's block-editor
  * internals (`wp_*`), ACF's field groups, post types and taxonomies (`acf-*`) and
  * Divi's Library (`et_pb_*`). Any of them can still be typed, or added back with the
@@ -33,12 +36,15 @@ final class PostTypes
     public static function options(): array
     {
         $options = [];
-        foreach (get_post_types([ 'show_ui' => true ], 'objects') as $name => $type) {
+        foreach (get_post_types([], 'objects') as $name => $type) {
             $name = (string) $name;
             if ('attachment' === $name || self::isConfiguration($name)) {
                 continue;
             }
-            $label     = $type instanceof \WP_Post_Type && is_string($type->label) && '' !== $type->label ? $type->label : $name;
+            if (! ( $type->public || $type->show_ui )) {
+                continue;
+            }
+            $label     = is_string($type->label) && '' !== $type->label ? $type->label : $name;
             $options[] = [
                 'value' => $name,
                 'label' => sprintf('%s (%s)', $label, $name),
