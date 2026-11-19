@@ -1,4 +1,6 @@
-/* Divi Active Form: layout only, so Divi's design settings and the theme set the look. */
+/* Divi Active Form: layout only, so Divi's design settings and the theme set the look.
+   The controls' own look is a fallback inside :where(), which has no specificity, so
+   any theme rule for input, select or textarea wins over it. */
 
 .daf-form__title {
 	margin-bottom: 0.75em;
@@ -7,12 +9,21 @@
 .daf-form__fields {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 1em 4%;
+	gap: var(--daf-row-gap, 1em) 4%;
 }
 
 .daf-form__fields > .daf-field-module {
 	flex: 0 0 100%;
 	min-width: 0;
+}
+
+/* Each field is a Divi module, and Divi spaces modules apart with a bottom margin (30px,
+   or a share of the column's width). The row gap above already spaces the fields, so
+   that margin would double it and differ with the column; it is removed here. It needs
+   !important to beat Divi's column rules. A field's own Margin setting still works at
+   the top; set --daf-row-gap on the form to change the spacing. */
+.daf-form__fields > .daf-field-module.et_pb_module {
+	margin-bottom: 0 !important;
 }
 
 /* Widths: fractions of the row, less their share of the 4% gaps, so a quarter and three
@@ -147,9 +158,15 @@
 	color: #b42318;
 }
 
+/* Fills its column; everything else is the theme's. The fallback look below only shows
+   where the theme does not style form controls. */
 .daf-field__input {
 	box-sizing: border-box;
 	width: 100%;
+	max-width: 100%;
+}
+
+:where(.daf-field__input) {
 	padding: 0.7em 0.8em;
 	border: 1px solid #c4c4c4;
 	border-radius: 3px;
@@ -158,12 +175,12 @@
 	font: inherit;
 }
 
-.daf-field__input:focus {
+:where(.daf-field__input:focus) {
 	outline: 2px solid currentColor;
 	outline-offset: 1px;
 }
 
-.daf-field__select {
+:where(.daf-field__select) {
 	appearance: auto;
 }
 
