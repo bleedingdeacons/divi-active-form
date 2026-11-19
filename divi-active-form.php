@@ -5,7 +5,7 @@
  * Description:       Divi 5 form builder: a Form module whose Form Field children include dropdowns filled from a JSON source. Each submission creates a post and fires an after-insert hook.
  * Version:           1.6.0
  * Requires at least: 6.5
- * Requires PHP:      8.1
+ * Requires PHP:      8.4
  * GitHub Plugin URI: https://github.com/bleedingdeacons/divi-active-form
  * GitHub Branch:     main
  * Author:            The Bleeding Deacons

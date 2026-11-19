@@ -5,7 +5,7 @@
 ![PHPStan](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbleedingdeacons%2Fdivi-active-form%2Fmain%2Fphpstan.neon.dist&query=%24.parameters.level&label=PHPStan&prefix=level%20&color=brightgreen)
 ![PHPCS](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbleedingdeacons%2Fdivi-active-form%2Fmain%2F.phpcs.xml.dist&query=%2Fruleset%2Frule%5B1%5D%2F%40ref&label=PHPCS&color=brightgreen)
 ![Version](https://img.shields.io/badge/version-1.6.0-blue)
-![PHP](https://img.shields.io/badge/php-8.1%2B-777bb4)
+![PHP](https://img.shields.io/badge/php-8.4%2B-777bb4)
 ![Licence](https://img.shields.io/badge/licence-GPL--2.0--or--later-green)
 
 A Divi 5 form builder whose submissions become WordPress posts. It adds two modules:
@@ -16,7 +16,7 @@ A Divi 5 form builder whose submissions become WordPress posts. It adds two modu
   Phone, Paragraph, **Dropdown** or Checkbox. A Dropdown's options are typed in, come
   from a JSON source, or are a field's values across a post type (ACF).
 
-Requires **Divi 5** (developed against 5.19.0). PHP 8.1+. ACF is optional: with it, fields
+Requires **Divi 5** (developed against 5.19.0). PHP 8.4+. ACF is optional: with it, fields
 are saved through `update_field()`.
 
 ## Building a form
