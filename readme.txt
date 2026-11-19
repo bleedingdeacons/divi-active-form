@@ -1,7 +1,7 @@
 === Divi Active Form ===
 Requires at least: 6.5
 Tested up to: 6.8
-Requires PHP: 8.1
+Requires PHP: 8.4
 Stable tag: 1.6.0
 Build date: 2026/11/15 19:18:55
 License: GPLv2 or later
